@@ -22,9 +22,11 @@ class EventController {
   }
   createEvent = async (req: Request, res: Response) => {
     try {
-      console.log(this);
-      const { name } = req.body;
-      const newEvent = await this.eventService.createEvent({ name });
+      const { name, description } = req.body;
+      const newEvent = await this.eventService.createEvent({
+        name,
+        description,
+      });
       res.json(newEvent);
     } catch (error) {
       res.status(404).json({ message: error.message });

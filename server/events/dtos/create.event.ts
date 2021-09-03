@@ -1,3 +1,4 @@
 export default interface ICreateEvent{
-    name:string
+    name:string,
+    description:string
 }
