@@ -14,5 +14,5 @@ export default class Test extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  name: string;
+  yaeblan: string;
 }

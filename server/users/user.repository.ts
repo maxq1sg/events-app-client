@@ -1,5 +1,6 @@
 import Event from "./user.model";
 import { EntityRepository, Repository } from "typeorm";
+import User from "./user.model";
 
-@EntityRepository(Event)
-export default class EventRepository extends Repository<Event> {}
+@EntityRepository(User)
+export default class UserRepository extends Repository<User> {}

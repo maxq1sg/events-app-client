@@ -1,3 +1,5 @@
+import { RoleType } from "../../middleware/RoleGuard";
+
 export interface RegisterUser {
   first_name: string;
   email: string;
@@ -7,6 +9,7 @@ export interface RegisterUser {
     is_married: boolean;
     address: string;
   };
+  role?: RoleType;
 }
 export interface LoginUser {
   email: string;

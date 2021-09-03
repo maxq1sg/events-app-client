@@ -16,9 +16,6 @@ class EventController {
     this.eventService = new EventService();
     this.router = Router();
     this.router.post("/", this.createEvent);
-    this.router.get("/", (req: Request, res: Response) => {
-      res.json({ mes: "max" });
-    });
   }
   createEvent = async (req: Request, res: Response) => {
     try {

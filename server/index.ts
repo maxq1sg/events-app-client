@@ -1,8 +1,8 @@
 import eventController from "./events/event-controller";
 import usersController from "./users/user.controller";
 import partController from "./participation/part.controller";
-import authController from "./aut/aut.controller"
-import express, { Application, Request, Response } from "express";
+import authController from "./aut/aut.controller";
+import express, { Application } from "express";
 import connectDB from "./connectDb";
 import chalk from "chalk";
 import dotenv from "dotenv";

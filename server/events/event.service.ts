@@ -1,21 +1,14 @@
-import {
-  getConnection,
-  getManager,
-  getRepository,
-  SelectQueryBuilder,
-} from "typeorm";
+import { getManager, getRepository } from "typeorm";
 import ICreateEvent from "./dtos/create.event";
 import Event from "./event.model";
 import EventRepository from "./event.repository";
 
 class EventService {
-  private eventRepository: any;
-  constructor() {
-    // this.eventRepository = getConnection()
-  }
+  private eventRepository: EventRepository;
+  constructor() {}
   async createEvent(body: ICreateEvent) {
-    const newEvent = Event.create(body);
-    await newEvent.save();
+    this.eventRepository = getRepository(Event);
+    const newEvent = await this.eventRepository.save(body);
     return newEvent;
   }
 }

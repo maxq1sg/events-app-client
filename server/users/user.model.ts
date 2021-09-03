@@ -8,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { RoleType } from "../middleware/RoleGuard";
 // import { EventToUser } from "../participation/part.model";
 
 @Entity("users")
@@ -29,6 +30,13 @@ export default class User extends BaseEntity {
 
   @Column({ type: "simple-json", nullable: true })
   add_data: { address: string; is_married: boolean };
+
+  @Column({
+    type: "enum",
+    enum: ["ADMIN", "USER", "ORGANISER"],
+    default: "USER",
+  })
+  role: RoleType;
 
   @ManyToMany((type) => Event, (event) => event.users, { cascade: true })
   @JoinTable({
