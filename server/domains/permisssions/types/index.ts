@@ -1,0 +1,7 @@
+export enum EPermission {
+  BAN = "BAN",
+  SHOW_EVENTS = "SHOW_EVENTS",
+  MODIFY_EVENT = "MODIFY_EVENT",
+  SUBSCRIBE = "SUBSCRIBE",
+  CREATE_EVENT = "CREATE_EVENT",
+}

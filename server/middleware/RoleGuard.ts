@@ -1,13 +1,20 @@
 import { NextFunction, Request, Response } from "express";
-export type RoleType = "ADMIN" | "USER" | "ORGANIZER";
+import { ERole } from "../domains/roles/dto";
 
-export default function RoleGuard(...roles: RoleType[]) {
-  return function (req: any, res: Response, next: NextFunction) {
-    const { user } = req;
-    if (user && roles?.includes(user.role)) {
-      next();
-    } else {
-      res.status(403).json({ message: "Отказано в доступе" });
+export default function RoleGuard(requiredRoles: ERole[]) {
+  return async function (req: any, res: Response, next: NextFunction) {
+    try {
+      const { user } = req;
+      if (!user) {
+        throw new Error("Отказано в доступе");
+      }
+      if (requiredRoles.includes(user.role.name)) {
+        next();
+      } else {
+        throw new Error("Отказано в доступе");
+      }
+    } catch (error) {
+      res.status(403).json({ message: error.message });
     }
   };
 }
