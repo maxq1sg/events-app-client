@@ -7,10 +7,9 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
+
   PrimaryGeneratedColumn,
 } from "typeorm";
-// import { EventToUser } from "../participation/part.model";
 
 @Entity("users")
 export default class User extends BaseEntity {

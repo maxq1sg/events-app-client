@@ -1,20 +1,20 @@
-import { getConnection, getManager, getRepository } from "typeorm";
+import { getConnection } from "typeorm";
 import { RegisterUser } from "./dtos/user-dto";
 import User from "./user.model";
 import * as bcrypt from "bcrypt";
 import Role from "../roles/roles.model";
+import NotFoundError from "../../errors/errorTypes/NotFoundError";
 
 class UserService {
-  // findSingleUser(id: number) {
-  //   return User.findOne(id, { relations: ["role"] });
-  // }
-
   deleteUser(id: number) {
     return User.delete(id);
   }
 
   async getEventsOfSingleUser(id: number) {
     const user = await User.findOne(id, { relations: ["events"] });
+    if(!user){
+      throw new NotFoundError()
+    }
     return user.events;
   }
 
@@ -38,9 +38,6 @@ class UserService {
     const second = await Role.findOne({ where: { name: "ADMIN" } });
 
     const password = await bcrypt.hash("12345", 10);
-    if (first && second) {
-      console.log("success");
-    }
     await getConnection()
       .createQueryBuilder()
       .insert()

@@ -20,6 +20,7 @@ class UserController {
   addPermissionsToRole = async (req: Request, res: Response) => {
     try {
       const { role_id, permission_ids }: AddPermissionsToRoleDto = req.body;
+      console.log("here");
       const success = await this.roleService.addPermissionsToRole({
         role_id,
         permission_ids,
@@ -32,9 +33,12 @@ class UserController {
 
   createNewRoleWithPermissions = async (req: Request, res: Response) => {
     try {
-      const { permission_ids, name }:NewRoleWithPermissions = req.body;
-      const newRole = await this.roleService.createNewRoleWithPermissions(name,permission_ids);
-      res.status(200).json(newRole)
+      const { permission_ids, name }: NewRoleWithPermissions = req.body;
+      const newRole = await this.roleService.createNewRoleWithPermissions(
+        name,
+        permission_ids
+      );
+      res.status(200).json(newRole);
     } catch (error) {
       res.status(404).json({ message: error.message });
     }

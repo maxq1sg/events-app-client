@@ -1,8 +1,5 @@
-import { EPermission } from "./../permisssions/types/index";
 import Permission from "../permisssions/permissions.model";
-import { getManager, Repository } from "typeorm";
 import Role from "./roles.model";
-import RoleRepository from "./roles.repository";
 import { AddPermissionsToRoleDto } from "./dto";
 import PermissionService from "../permisssions/permissions.service";
 

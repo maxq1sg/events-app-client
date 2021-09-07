@@ -1,9 +1,8 @@
 import chalk from "chalk";
 import authController from "./domains/auth/auth.controller";
 import eventController from "./domains/events/event-controller";
-import { Application } from "express";
 import partController from "./domains/subscription/subscription.controller";
-import express from "express";
+import express,{Application, NextFunction, Request,Response} from "express";
 import { createConnection } from "typeorm";
 import User from "./domains/users/user.model";
 import Event from "./domains/events/event.model";
@@ -18,6 +17,7 @@ import permissionsRouter from "./domains/permisssions/permissions.router";
 import authRouter from "./domains/auth/auth.router";
 import subRouter from "./domains/subscription/subscription.router";
 import eventRouter from "./domains/events/event.router";
+import errorHandler from "./errors/errorHandler";
 
 export default class App {
   app: Application;
@@ -34,8 +34,9 @@ export default class App {
     this.app.use("/api/auth", authRouter);
     this.app.use("/api/roles", rolesRouter);
     this.app.use("/api/perm", permissionsRouter);
-  }
 
+    this.app.use(errorHandler)
+  }
   async setupDbAndServer() {
     const conn = await createConnection({
       type: "postgres",

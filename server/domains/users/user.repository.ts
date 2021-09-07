@@ -1,4 +1,3 @@
-import Event from "./user.model";
 import { EntityRepository, Repository } from "typeorm";
 import User from "./user.model";
 

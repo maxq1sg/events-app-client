@@ -1,5 +1,4 @@
-import { measure } from "./../../middleware/TestDecorator";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import UserService from "./user.service";
 import { RegisterUser } from "./dtos/user-dto";
 
@@ -29,14 +28,9 @@ class UserController {
     }
   };
 
-  @measure
-  async getAllUsers(req: Request, res: Response) {
-    try {
+  async getAllUsers(req: Request, res: Response, next: NextFunction) {
       const data = await this.userService.findAllUsers();
       res.status(200).json(data);
-    } catch (error) {
-      res.status(404).json({ message: error.message });
-    }
   }
   createUser = async (req: Request, res: Response) => {
     try {
