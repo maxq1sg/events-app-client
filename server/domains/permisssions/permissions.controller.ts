@@ -16,5 +16,9 @@ class PermissionController {
       res.status(404).json({ message: error.message });
     }
   };
+  changePermissionName= async (req: Request, res: Response) => {
+    // const {}
+    // const modifiedPermission = await this.permService.changePermissionName()
+  }
 }
 export default new PermissionController();

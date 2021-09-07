@@ -7,7 +7,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -44,7 +44,10 @@ export default class User extends BaseEntity {
     },
   })
   events: Event[];
-  
+
   @ManyToOne(() => Role, (role) => role.users, { onDelete: "SET NULL" })
   role: Role;
+
+  @OneToMany(() => Event, (event) => event.owner)
+  owner_of_events: Event[];
 }

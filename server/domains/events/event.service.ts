@@ -1,22 +1,29 @@
-import { getManager, getRepository } from "typeorm";
-import { ICreateEvent } from "./dtos/create.event";
+import User from "../../domains/users/user.model";
+import {  ILike } from "typeorm";
+import { ICreateEvent, IEvent } from "./dtos/create.event";
 import Event from "./event.model";
-import EventRepository from "./event.repository";
+import BadRequestError from "../../errors/errorTypes/BadRequestError";
+import NotFoundError from "../../errors/errorTypes/NotFoundError";
 
 class EventService {
-  private eventRepository: EventRepository;
-  constructor() {}
-
-  async createEvent(body: ICreateEvent) {
-    this.eventRepository = getRepository(Event);
-    const newEvent = await this.eventRepository.save(body);
+  async createEvent(createEventBody: ICreateEvent) {
+    const { owner_id, body } = createEventBody;
+    console.log(owner_id);
+    const ownerInDb = await User.findOne(owner_id);
+    console.log(ownerInDb);
+    if (!ownerInDb) {
+      throw new BadRequestError();
+    }
+    const newEvent = Event.create(body);
+    newEvent.owner = ownerInDb;
+    await newEvent.save();
     return newEvent;
   }
 
-  async modifyEvent(id: number, body: ICreateEvent) {
+  async modifyEvent(id: number, body: IEvent) {
     const newEvent = await Event.findOne(id);
     if (!newEvent) {
-      throw new Error("Ошибка при изменении ивента");
+      throw new NotFoundError();
     }
     newEvent.description = body.description || newEvent.description;
     newEvent.name = body.name || newEvent.name;
@@ -25,10 +32,19 @@ class EventService {
   }
   async getEventSubscribers(id: number) {
     const event = await Event.findOne(id, { relations: ["users"] });
+    if (!event) {
+      throw new NotFoundError();
+    }
     return event.users.map((item) => {
       item.password = null;
       return item;
     });
+  }
+  getSingleEvent(id: number) {
+    return Event.findOne(id, { relations: ["users", "owner"] });
+  }
+  searchEvents(searchQuery: string) {
+    return Event.find({ where: { name: ILike(`%${searchQuery}%`) } });
   }
 }
 export default EventService;

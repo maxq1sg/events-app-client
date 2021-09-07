@@ -8,5 +8,10 @@ class PermissionService {
   getPermissionsByIds(ids:number[]){
     return Permission.findByIds(ids)
   }
+  async changePermissionName(id:number,newName:string){
+    const permission = await Permission.findOne(id)
+    permission.name=newName
+    return permission.save()
+  }
 }
 export default PermissionService;

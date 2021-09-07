@@ -1,11 +1,10 @@
-// import { EventToUser } from "../participation/part.model";
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   ManyToMany,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import User from "./../users/user.model";
@@ -24,6 +23,8 @@ export default class Event extends BaseEntity {
   @CreateDateColumn()
   date: Date;
 
-  @ManyToMany((type) => User, (user) => user.events)
+  @ManyToMany(() => User, (user) => user.events)
   users: User[];
+  @ManyToOne(() => User, (user) => user.owner_of_events)
+  owner: User;
 }

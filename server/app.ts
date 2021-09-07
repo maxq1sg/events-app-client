@@ -1,8 +1,5 @@
 import chalk from "chalk";
-import authController from "./domains/auth/auth.controller";
-import eventController from "./domains/events/event-controller";
-import partController from "./domains/subscription/subscription.controller";
-import express,{Application, NextFunction, Request,Response} from "express";
+import express, { Application } from "express";
 import { createConnection } from "typeorm";
 import User from "./domains/users/user.model";
 import Event from "./domains/events/event.model";
@@ -35,7 +32,7 @@ export default class App {
     this.app.use("/api/roles", rolesRouter);
     this.app.use("/api/perm", permissionsRouter);
 
-    this.app.use(errorHandler)
+    this.app.use(errorHandler);
   }
   async setupDbAndServer() {
     const conn = await createConnection({
@@ -55,7 +52,7 @@ export default class App {
   }
 
   startServer() {
-    const PORT = process.env.APP_PORT;
+    const PORT = process.env.APP_PORT || 4000;
     this.app.listen(PORT, () => {
       console.log(chalk.green(`server is running on port ${PORT}`));
     });

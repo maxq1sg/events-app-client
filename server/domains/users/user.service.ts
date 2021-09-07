@@ -1,13 +1,20 @@
+import { HttpStatusCode } from './../../errors/HttpStatusCodes';
 import { getConnection } from "typeorm";
 import { RegisterUser } from "./dtos/user-dto";
 import User from "./user.model";
 import * as bcrypt from "bcrypt";
 import Role from "../roles/roles.model";
 import NotFoundError from "../../errors/errorTypes/NotFoundError";
+import CustomError from "../../errors/errorTypes/CustomError";
 
 class UserService {
-  deleteUser(id: number) {
-    return User.delete(id);
+  async deleteUser(id: number) {
+    const data = await User.delete(id);
+    if(!data?.affected){
+      throw new CustomError(HttpStatusCode.NOT_FOUND,"Ошибка при удалении пользователя");
+      
+    }
+    return data
   }
 
   async getEventsOfSingleUser(id: number) {
@@ -25,18 +32,19 @@ class UserService {
   }
 
   async createUser(body: RegisterUser) {
-    const SALT_ROUNDS = 10;
-    const hashedPassword = await bcrypt.hash(body.password, SALT_ROUNDS);
+    console.log(process.env.SALT_ROUNDS+1)
+    const hashedPassword = await bcrypt.hash(body.password, +process.env.SALT_ROUNDS);
     body.password = hashedPassword;
     const newUser = User.create(body);
     await newUser.save();
     return newUser;
   }
+  async getSingleEvent(id:number){
 
+  }
   async seedUsers() {
     const first = await Role.findOne({ where: { name: "EDITOR" } });
     const second = await Role.findOne({ where: { name: "ADMIN" } });
-
     const password = await bcrypt.hash("12345", 10);
     await getConnection()
       .createQueryBuilder()

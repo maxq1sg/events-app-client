@@ -1,3 +1,4 @@
+import ForbiddenError from "../errors/errorTypes/ForbiddenError";
 import { NextFunction, Request, Response } from "express";
 import { ERole } from "../domains/roles/dto";
 
@@ -6,12 +7,12 @@ export default function RoleGuard(requiredRoles: ERole[]) {
     try {
       const { user } = req;
       if (!user) {
-        throw new Error("Отказано в доступе");
+        throw new ForbiddenError();
       }
       if (requiredRoles.includes(user.role.name)) {
         next();
       } else {
-        throw new Error("Отказано в доступе");
+        throw new ForbiddenError();
       }
     } catch (error) {
       res.status(403).json({ message: error.message });
