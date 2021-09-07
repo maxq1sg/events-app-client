@@ -50,7 +50,7 @@ export default class App {
     console.log(
       chalk.green(`db connected: ${conn.name}/${conn.options.database} `)
     );
-    await this.startServer();
+    this.startServer();
   }
 
   startServer() {
