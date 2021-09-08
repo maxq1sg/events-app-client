@@ -1,4 +1,5 @@
-import { RoleType } from "../../roles/dto";
+import { ERole } from './../../roles/dto/index';
+
 import Role from "../../roles/roles.model";
 
 export interface RegisterUser {
@@ -10,7 +11,7 @@ export interface RegisterUser {
     is_married: boolean;
     address: string;
   };
-  role?: RoleType;
+  role?: Role;
 }
 export interface LoginUser {
   email: string;

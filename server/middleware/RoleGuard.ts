@@ -1,9 +1,10 @@
 import ForbiddenError from "../errors/errorTypes/ForbiddenError";
 import { NextFunction, Request, Response } from "express";
 import { ERole } from "../domains/roles/dto";
+import CustomRequest from "../types/CustomRequest";
 
 export default function RoleGuard(requiredRoles: ERole[]) {
-  return async function (req: any, res: Response, next: NextFunction) {
+  return async function (req: CustomRequest, res: Response, next: NextFunction) {
     try {
       const { user } = req;
       if (!user) {

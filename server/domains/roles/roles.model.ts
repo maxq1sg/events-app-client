@@ -1,3 +1,4 @@
+import { ERole } from "./dto/index";
 import {
   BaseEntity,
   Column,
@@ -15,8 +16,12 @@ export default class Role extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string;
+  @Column({
+    type: "enum",
+    enum: ERole,
+    default: ERole.USER,
+  })
+  name: ERole;
 
   @ManyToMany(() => Permission, (per) => per.roles, { cascade: true })
   @JoinTable({

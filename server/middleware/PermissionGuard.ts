@@ -3,10 +3,11 @@ import { NextFunction, Request, Response } from "express";
 import RoleService from "../domains/roles/roles.service";
 import ForbiddenError from "../errors/errorTypes/ForbiddenError";
 import asyncHandler from "express-async-handler";
+import CustomRequest from "../types/CustomRequest";
 
 export default function PermissionGuard(requiredPermission: EPermission) {
   return asyncHandler(async function (
-    req: any,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
   ) {

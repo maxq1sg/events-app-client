@@ -1,9 +1,9 @@
+import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import User from "../../domains/users/user.model";
-import {  ILike } from "typeorm";
+import { ILike } from "typeorm";
 import { ICreateEvent, IEvent } from "./dtos/create.event";
 import Event from "./event.model";
-import BadRequestError from "../../errors/errorTypes/BadRequestError";
-import NotFoundError from "../../errors/errorTypes/NotFoundError";
+import CustomError from "../../errors/errorTypes/CustomError";
 
 class EventService {
   async createEvent(createEventBody: ICreateEvent) {
@@ -12,7 +12,10 @@ class EventService {
     const ownerInDb = await User.findOne(owner_id);
     console.log(ownerInDb);
     if (!ownerInDb) {
-      throw new BadRequestError();
+      throw new CustomError(
+        HttpStatusCode.NOT_FOUND,
+        "Пользователь не найден!"
+      );
     }
     const newEvent = Event.create(body);
     newEvent.owner = ownerInDb;
@@ -23,7 +26,7 @@ class EventService {
   async modifyEvent(id: number, body: IEvent) {
     const newEvent = await Event.findOne(id);
     if (!newEvent) {
-      throw new NotFoundError();
+      throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
     }
     newEvent.description = body.description || newEvent.description;
     newEvent.name = body.name || newEvent.name;
@@ -31,13 +34,13 @@ class EventService {
     return newEvent.save();
   }
   async getEventSubscribers(id: number) {
-    const event = await Event.findOne(id, { relations: ["users"] });
+    const event = await Event.findOne(id, { relations: ["users"],select:["id"] });
     if (!event) {
-      throw new NotFoundError();
+      throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
     }
-    return event.users.map((item) => {
-      item.password = null;
-      return item;
+    return event.users.map((evt) => {
+      evt.password = null;
+      return evt;
     });
   }
   getSingleEvent(id: number) {

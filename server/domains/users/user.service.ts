@@ -4,8 +4,8 @@ import { RegisterUser } from "./dtos/user-dto";
 import User from "./user.model";
 import * as bcrypt from "bcrypt";
 import Role from "../roles/roles.model";
-import NotFoundError from "../../errors/errorTypes/NotFoundError";
-import CustomError from "../../errors/errorTypes/CustomError";
+import CustomError from '../../errors/errorTypes/CustomError';
+
 
 class UserService {
   async deleteUser(id: number) {
@@ -20,7 +20,7 @@ class UserService {
   async getEventsOfSingleUser(id: number) {
     const user = await User.findOne(id, { relations: ["events"] });
     if(!user){
-      throw new NotFoundError()
+      throw new CustomError(HttpStatusCode.NOT_FOUND,"Пользователь не найден")
     }
     return user.events;
   }
@@ -32,15 +32,11 @@ class UserService {
   }
 
   async createUser(body: RegisterUser) {
-    console.log(process.env.SALT_ROUNDS+1)
     const hashedPassword = await bcrypt.hash(body.password, +process.env.SALT_ROUNDS);
     body.password = hashedPassword;
     const newUser = User.create(body);
     await newUser.save();
     return newUser;
-  }
-  async getSingleEvent(id:number){
-
   }
   async seedUsers() {
     const first = await Role.findOne({ where: { name: "EDITOR" } });

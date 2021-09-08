@@ -1,26 +1,31 @@
+import { TokenPayload } from "./../domains/auth/dtos/aut.dto";
+import { HttpStatusCode } from "./../errors/HttpStatusCodes";
 import UnathorizedError from "./../errors/errorTypes/UnauthorizedError";
 import { NextFunction, Response, Request } from "express";
 import asyncHandler from "express-async-handler";
-import jwt from "jsonwebtoken";
-//fix
+import jwt, { JwtPayload } from "jsonwebtoken";
+import CustomError from "../errors/errorTypes/CustomError";
+import CustomRequest from "../types/CustomRequest";
+
+
 const AuthGuard = asyncHandler(
-  (req: any, res: Response, next: NextFunction) => {
+  (req: CustomRequest, res: Response, next: NextFunction) => {
     const header = req.headers.authorization;
     if (!header) {
-      throw new UnathorizedError();
+      throw new CustomError(HttpStatusCode.UNAUTHORIZED, "Войдите в систему!");
     }
     const [type, token] = header.split(" ");
     if (type !== "Bearer" || !token) {
-      throw new UnathorizedError();
+      throw new CustomError(HttpStatusCode.UNAUTHORIZED, "Войдите в систему!");
     }
-    let decoded;
+
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as TokenPayload;
+      req.user = decoded;
+      next();
     } catch (error) {
-      throw new UnathorizedError();
+      throw new CustomError(HttpStatusCode.UNAUTHORIZED, "Войдите в систему!");
     }
-    req.user = decoded;
-    next();
   }
 );
 export default AuthGuard;
