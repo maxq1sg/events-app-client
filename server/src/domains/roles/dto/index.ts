@@ -3,7 +3,7 @@ export interface AddPermissionsToRoleDto {
   permission_ids: number[];
 }
 export interface NewRoleWithPermissions {
-  name: string;
+  name: ERole;
   permission_ids: number[];
 }
 export enum ERole {

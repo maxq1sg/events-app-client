@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev ./index.ts",
+    "dev": "ts-node-dev ./src/index.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "jest --watch"
   },
@@ -31,6 +31,7 @@
     "jest": "^27.1.0",
     "nodemon": "^2.0.12",
     "supertest": "^6.1.6",
+    "ts-jest": "^27.0.5",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.4.2"
   }

@@ -1,6 +1,6 @@
 import Permission from "../permisssions/permissions.model";
 import Role from "./roles.model";
-import { AddPermissionsToRoleDto } from "./dto";
+import { AddPermissionsToRoleDto, ERole } from "./dto";
 import PermissionService from "../permisssions/permissions.service";
 
 class RoleService {
@@ -9,12 +9,12 @@ class RoleService {
   constructor() {
     this.permissionService = new PermissionService();
   }
-  addNewRole(name: string) {
+  addNewRole(name: ERole) {
     const newRole = Role.create({ name });
     return newRole.save();
   }
 
-  async createNewRoleWithPermissions(name: string, permIds: number[]) {
+  async createNewRoleWithPermissions(name: ERole, permIds: number[]) {
     const role = await this.addNewRole(name);
     const permissionsInDb = await this.permissionService.getPermissionsByIds(
       permIds
