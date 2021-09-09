@@ -47,8 +47,8 @@ class UserController {
     res.json(newUser);
   };
   seedUsers = async (req: Request, res: Response) => {
-    await this.userService.seedUsers();
-    res.json({ message: "success" });
+    const identifiers = await UserService.seedUsers();
+    res.json(identifiers);
   };
 }
 export default new UserController();

@@ -1,11 +1,11 @@
 import chalk from "chalk";
-import { createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 import Event from "../../domains/events/event.model";
 import Permission from "../../domains/permisssions/permissions.model";
 import Role from "../../domains/roles/roles.model";
 import User from "../../domains/users/user.model";
 
-export default async function setupTestDB() {
+export default async function setupTestDB(): Promise<Connection> {
   const connection = await createConnection({
     type: "postgres",
     host: process.env.DB_HOST,

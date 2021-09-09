@@ -1,6 +1,6 @@
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import User from "../../domains/users/user.model";
-import { ILike } from "typeorm";
+import { getConnection, ILike } from "typeorm";
 import { ICreateEvent, IEvent } from "./dtos/create.event";
 import Event from "./event.model";
 import CustomError from "../../errors/errorTypes/CustomError";
@@ -34,7 +34,10 @@ class EventService {
     return newEvent.save();
   }
   async getEventSubscribers(id: number) {
-    const event = await Event.findOne(id, { relations: ["users"],select:["id"] });
+    const event = await Event.findOne(id, {
+      relations: ["users"],
+      select: ["id"],
+    });
     if (!event) {
       throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
     }
@@ -48,6 +51,31 @@ class EventService {
   }
   searchEvents(searchQuery: string) {
     return Event.find({ where: { name: ILike(`%${searchQuery}%`) } });
+  }
+  static clearEvents() {
+    return getConnection().createQueryBuilder().delete().from(Event).execute();
+  }
+
+  static async seedEvents(...creatorIds: number[]) {
+    const firstOwner = await User.findOne(creatorIds[0]);
+    const secondOwner = await User.findOne(creatorIds[1]);
+    const { identifiers } = await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(Event)
+      .values([
+        { name: "first", description: "first event ever", owner: firstOwner },
+        {
+          name: "second",
+          description: "second event ever",
+          owner: secondOwner,
+        },
+        { name: "third", description: "third event ever", owner: secondOwner },
+        { name: "fourth", description: "fourth event ever", owner: firstOwner },
+      ])
+      .returning("id")
+      .execute();
+    return identifiers.map((idItem) => idItem.id);
   }
 }
 export default EventService;

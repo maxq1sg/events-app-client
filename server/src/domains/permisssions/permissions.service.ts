@@ -24,6 +24,7 @@ class PermissionService {
       .values(
         Object.keys(EPermission).map((perm: EPermission) => ({ name: perm }))
       )
+      .returning("id")
       .execute();
   }
   static clearAllPermissions() {

@@ -16,5 +16,9 @@ class PermissionController {
     // const {}
     // const modifiedPermission = await this.permService.changePermissionName()
   }
+  seedPermissions= async (req: Request, res: Response) => {
+    const {identifiers}=await PermissionService.seedPermissions()
+    res.json(identifiers)
+  }
 }
 export default new PermissionController();

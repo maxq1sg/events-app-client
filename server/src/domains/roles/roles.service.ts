@@ -12,6 +12,28 @@ class RoleService {
   constructor() {
     this.permissionService = new PermissionService();
   }
+
+  static seedRoles() {
+    return getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(Role)
+      .values(Object.keys(ERole).map((role: ERole) => ({ name: role })))
+      .returning("id")
+      .execute();
+  }
+  static clearAllRoles() {
+    return getConnection().createQueryBuilder().delete().from(Role).execute();
+  }
+
+  //костыль
+  async changeAllRoles(dto: AddPermissionsToRoleDto[]) {
+    for (let role of dto) {
+      await this.addPermissionsToRole(role);
+    }
+    return true;
+  }
+
   addNewRole(name: ERole) {
     const newRole = Role.create({ name });
     return newRole.save();
@@ -47,16 +69,13 @@ class RoleService {
     }
     return role.permissions;
   }
-  static seedRoles() {
-    return getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(Role)
-      .values(Object.keys(ERole).map((role: ERole) => ({ name: role })))
-      .execute();
+
+  getAllRolesWithPermissions() {
+    return Role.find({ relations: ["permissions"] });
   }
-  static clearAllRoles() {
-    return getConnection().createQueryBuilder().delete().from(Role).execute();
+
+  getRoleByName(name: ERole) {
+    return Role.find({ where: { name } });
   }
 }
 export default RoleService;
