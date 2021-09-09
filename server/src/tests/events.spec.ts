@@ -22,40 +22,36 @@ describe("test auth route", function () {
     event_ids = await EventService.seedEvents(user_ids[0], user_ids[1]);
   });
 
-  test("user can login with correct data", async () => {
+  test("unathorized user can't create events", async () => {
+    const response = await request.post("/api/events").send({
+      owner_id: user_ids[0],
+      body: { name: "mainEvent", description: "very interesting" },
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  test('users with "CREATE_EVENT" permission can create events', async () => {
+    const { token } = await authorizeAsRole(request, ERole.ADMIN);
     const response = await request
-      .post("/api/auth/login")
-      .send({ email: "admin@gmail.com", password: "12345" });
+      .post("/api/events")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        owner_id: user_ids[2],
+        body: { name: "mainEvent", description: "very interesting" },
+      });
     expect(response.statusCode).toBe(200);
   });
 
-  test("user can't login with incorrect data", async () => {
+  test('users with no "CREATE_EVENT" permission can\'t create events', async () => {
+    const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
-      .post("/api/auth/login")
-      .send({ email: "admin@gmail.com", password: "123456" });
-    expect(response.statusCode).toBe(401);
-  });
-
-  test("user can register with correct data", async () => {
-    const response = await request.post("/api/auth/register").send({
-      first_name: "ivan",
-      last_name: "ivanov",
-      password: "12345",
-      email: "max@gmail.com",
-      role: "EDITOR",
-    });
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("user can't register with email already in use", async () => {
-    const response = await request.post("/api/auth/register").send({
-      first_name: "ivan",
-      last_name: "ivanov",
-      password: "12345",
-      email: "admin@gmail.com",
-      role: "EDITOR",
-    });
-    expect(response.statusCode).toBe(401);
+      .post("/api/events")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        owner_id: user_ids[2],
+        body: { name: "mainEvent", description: "very interesting" },
+      });
+    expect(response.statusCode).toBe(403);
   });
 
   afterAll(async () => {

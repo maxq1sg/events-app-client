@@ -22,40 +22,37 @@ describe("test auth route", function () {
     event_ids = await EventService.seedEvents(user_ids[0], user_ids[1]);
   });
 
-  test("user can login with correct data", async () => {
+  test('authorized users with "SUBSCRIPTION" permission can make subscription', async () => {
+    const { token, user } = await authorizeAsRole(request, ERole.USER);
     const response = await request
-      .post("/api/auth/login")
-      .send({ email: "admin@gmail.com", password: "12345" });
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("user can't login with incorrect data", async () => {
-    const response = await request
-      .post("/api/auth/login")
-      .send({ email: "admin@gmail.com", password: "123456" });
-    expect(response.statusCode).toBe(401);
-  });
-
-  test("user can register with correct data", async () => {
-    const response = await request.post("/api/auth/register").send({
-      first_name: "ivan",
-      last_name: "ivanov",
-      password: "12345",
-      email: "max@gmail.com",
-      role: "EDITOR",
+      .post("/api/sub/add")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        userId: user_ids[0],
+        eventId: event_ids[0],
+      });
+    const userFromDb = await User.findOne(user_ids[0], {
+      relations: ["events"],
     });
     expect(response.statusCode).toBe(200);
+    expect(userFromDb.events.length).toBe(1);
   });
 
-  test("user can't register with email already in use", async () => {
-    const response = await request.post("/api/auth/register").send({
-      first_name: "ivan",
-      last_name: "ivanov",
-      password: "12345",
-      email: "admin@gmail.com",
-      role: "EDITOR",
+  test('authorized users with "SUBSCRIPTION" permission can cancel subscription', async () => {
+    const { token, user } = await authorizeAsRole(request, ERole.USER);
+    const response = await request
+      .post("/api/sub/cancel")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        userId: user_ids[0],
+        eventId: event_ids[0],
+      });
+    const userFromDb = await User.findOne(user_ids[0], {
+      relations: ["events"],
     });
-    expect(response.statusCode).toBe(401);
+
+    expect(response.statusCode).toBe(200);
+    expect(userFromDb.events.length).toBe(0);
   });
 
   afterAll(async () => {

@@ -5,8 +5,8 @@ import Permission from "../../domains/permisssions/permissions.model";
 import Role from "../../domains/roles/roles.model";
 import User from "../../domains/users/user.model";
 
-export default async function setupTestDB(): Promise<Connection> {
-  const connection = await createConnection({
+export default function setupTestDB(): Promise<Connection> {
+  return createConnection({
     type: "postgres",
     host: process.env.DB_HOST,
     port: +process.env.DB_PORT,
@@ -16,5 +16,4 @@ export default async function setupTestDB(): Promise<Connection> {
     entities: [Event, User, Role, Permission],
     synchronize: true,
   });
-  return connection;
 }
