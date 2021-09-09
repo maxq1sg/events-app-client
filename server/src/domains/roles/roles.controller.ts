@@ -53,5 +53,13 @@ class UserController {
       res.status(404).json({ message: error.message });
     }
   };
+  seedRoles = async (req: Request, res: Response) => {
+    const roles = await RoleService.seedRoles()
+    res.json({roles})
+  }
+  clearAllRoles = async (req: Request, res: Response) => {
+    await RoleService.clearAllRoles()
+    res.json({message:"succcess"})
+  }
 }
 export default new UserController();

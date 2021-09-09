@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import { createConnection } from "typeorm";
 import User from "./domains/users/user.model";
 import Event from "./domains/events/event.model";
@@ -31,11 +31,13 @@ export default class App {
     this.app.use("/api/auth", authRouter);
     this.app.use("/api/roles", rolesRouter);
     this.app.use("/api/perm", permissionsRouter);
-
+    this.app.get("/maxim", (req: Request, res: Response) => {
+      res.json({ mes: "ya_eblan" });
+    });
     this.app.use(errorHandler);
   }
-  async setupDbAndServer() {
-    const conn = await createConnection({
+  async setupDb() {
+    const connection = await createConnection({
       type: "postgres",
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
@@ -46,15 +48,23 @@ export default class App {
       synchronize: true,
     });
     console.log(
-      chalk.green(`db connected: ${conn.name}/${conn.options.database} `)
+      chalk.green(
+        `db connected: ${connection.name}/${connection.options.database} `
+      )
     );
-    this.startServer();
+    return connection;
   }
-
   startServer() {
     const PORT = process.env.APP_PORT || 4000;
     this.app.listen(PORT, () => {
       console.log(chalk.green(`server is running on port ${PORT}`));
     });
+    return this.app;
   }
+  async startApplication() {
+    await this.setupDb();
+    this.startServer();
+  }
+  //fix
+  stopServer() {}
 }

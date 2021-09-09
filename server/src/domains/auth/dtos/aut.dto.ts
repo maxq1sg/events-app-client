@@ -1,4 +1,3 @@
-import { ERole } from './../../roles/dto/index';
 
 import Role from "../../roles/roles.model";
 

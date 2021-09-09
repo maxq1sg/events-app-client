@@ -7,15 +7,15 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
-      "baseUrl": ".",
+      // "baseUrl": "./",
       "typeRoots": ["src/types"],
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "types": ["@types/jest"]
     },
-    "include": [
-      "./src/**/*"
-  ]
+  //   "include": [
+  //     "./src/**/*"
+  // ]
   }
 
   

@@ -20,7 +20,7 @@ class AuthController {
       id: userInDb.id,
       role: userInDb.role,
     });
-    userInDb.password = "низя";
+    userInDb.password = null;
     res.json({ user: userInDb, token });
   };
   registerUser = async (req: Request, res: Response) => {
@@ -45,7 +45,7 @@ class AuthController {
       id: newUser.id,
       role: newUser?.role,
     });
-    newUser.password = "низя";
+    newUser.password = null;
     res.json({ user: newUser, token });
   };
 }

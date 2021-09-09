@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import { Router } from "express";
 import eventController from "./event-controller";
+import AuthGuard from "../../middleware/AuthGuard";
 const router = Router();
 
 router.post("/", asyncHandler(eventController.createEvent));

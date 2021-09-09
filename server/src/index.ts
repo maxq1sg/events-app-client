@@ -1,5 +1,5 @@
 import App from "./app";
 
-const app = new App().setupDbAndServer();
+const server = new App().startApplication()
 
-export default app
+export default server

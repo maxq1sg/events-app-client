@@ -7,7 +7,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import CustomError from "../errors/errorTypes/CustomError";
 import CustomRequest from "../types/CustomRequest";
 
-
 const AuthGuard = asyncHandler(
   (req: CustomRequest, res: Response, next: NextFunction) => {
     const header = req.headers.authorization;
@@ -20,8 +19,11 @@ const AuthGuard = asyncHandler(
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as TokenPayload;
-      req.user = decoded;
+      const decodedUser = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      ) as TokenPayload;
+      req.user = decodedUser;
       next();
     } catch (error) {
       throw new CustomError(HttpStatusCode.UNAUTHORIZED, "Войдите в систему!");

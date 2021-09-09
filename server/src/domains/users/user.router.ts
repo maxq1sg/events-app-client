@@ -14,7 +14,7 @@ router.delete("/:id", asyncHandler(userController.deleteUserById));
 router.get(
   "/",
   AuthGuard,
-  PermissionGuard(EPermission.USERS_LIST),
+  PermissionGuard(EPermission.CREATE_EVENT),
   asyncHandler(userController.getAllUsers)
 );
 
