@@ -9,12 +9,16 @@ const router = Router();
 
 router.post("/", asyncHandler(userController.createUser));
 router.post("/seed", asyncHandler(userController.seedUsers));
-router.get("/:id", asyncHandler(userController.getEventsOfSingleUser));
+router.get(
+  "/:id",
+  AuthGuard,
+  asyncHandler(userController.getEventsOfSingleUser)
+);
 router.delete("/:id", asyncHandler(userController.deleteUserById));
 router.get(
   "/",
   AuthGuard,
-  PermissionGuard(EPermission.CREATE_EVENT),
+  PermissionGuard(EPermission.SHOW_USERS_LIST),
   asyncHandler(userController.getAllUsers)
 );
 

@@ -8,9 +8,7 @@ import CustomError from "../../errors/errorTypes/CustomError";
 class EventService {
   async createEvent(createEventBody: ICreateEvent) {
     const { owner_id, body } = createEventBody;
-    console.log(owner_id);
     const ownerInDb = await User.findOne(owner_id);
-    console.log(ownerInDb);
     if (!ownerInDb) {
       throw new CustomError(
         HttpStatusCode.NOT_FOUND,

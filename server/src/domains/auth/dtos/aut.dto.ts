@@ -1,5 +1,6 @@
 
 import Role from "../../roles/roles.model";
+import User from "../../users/user.model";
 
 export interface RegisterUser {
   first_name: string;
@@ -21,3 +22,8 @@ export interface TokenPayload {
   role: Role;
   id: number;
 }
+export interface AuthResponseBody{
+  user:User,
+  token:string
+}
+

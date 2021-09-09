@@ -1,6 +1,9 @@
+import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import { NextFunction, Request, Response } from "express";
 import UserService from "./user.service";
 import { RegisterUser } from "./dtos/user-dto";
+import CustomRequest from "../../types/CustomRequest";
+import CustomError from "../../errors/errorTypes/CustomError";
 
 class UserController {
   private userService: UserService;
@@ -17,9 +20,17 @@ class UserController {
       .json({ message: `Удалено пользователей: ${data.affected}` });
   };
   //fix
-  getEventsOfSingleUser = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const events = await this.userService.getEventsOfSingleUser(+id);
+  getEventsOfSingleUser = async (req: CustomRequest, res: Response) => {
+    const { id: idFromClient } = req.params;
+    const { id: idFromToken } = req.user;
+    console.log(idFromClient, idFromToken);
+    if (+idFromClient !== idFromToken) {
+      throw new CustomError(
+        HttpStatusCode.FORBIDDEN,
+        "У вас нет доступа для просмотра!"
+      );
+    }
+    const events = await this.userService.getEventsOfSingleUser(+idFromToken);
     res.status(200).json(events);
   };
 

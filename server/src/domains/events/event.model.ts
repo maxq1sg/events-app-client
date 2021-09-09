@@ -23,7 +23,7 @@ export default class Event extends BaseEntity {
   @CreateDateColumn()
   date: Date;
 
-  @ManyToMany(() => User, (user) => user.events)
+  @ManyToMany(() => User, (user) => user.events,{onDelete:"CASCADE"})
   users: User[];
   @ManyToOne(() => User, (user) => user.owner_of_events)
   owner: User;

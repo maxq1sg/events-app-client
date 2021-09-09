@@ -6,7 +6,7 @@ import Event from "./domains/events/event.model";
 import dotenv from "dotenv";
 import Role from "./domains/roles/roles.model";
 import Permission from "./domains/permisssions/permissions.model";
-
+import http from "http";
 import "reflect-metadata";
 import usersRouter from "./domains/users/user.router";
 import rolesRouter from "./domains/roles/roles.router";
@@ -18,6 +18,8 @@ import errorHandler from "./errors/errorHandler";
 
 export default class App {
   app: Application;
+  server: http.Server;
+
   constructor() {
     dotenv.config();
 
@@ -56,15 +58,17 @@ export default class App {
   }
   startServer() {
     const PORT = process.env.APP_PORT || 4000;
-    this.app.listen(PORT, () => {
+    this.server = this.app.listen(PORT, () => {
       console.log(chalk.green(`server is running on port ${PORT}`));
     });
-    return this.app;
+    return this.server
   }
   async startApplication() {
     await this.setupDb();
     this.startServer();
   }
-  //fix
-  stopServer() {}
+
+  stopServer() {
+    this.server?.close();
+  }
 }

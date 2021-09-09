@@ -52,7 +52,6 @@ class RoleService {
   async addPermissionsToRole(body: AddPermissionsToRoleDto) {
     const role = await Role.findOne(body.role_id);
     const permissions = await Permission.findByIds(body.permission_ids);
-    console.log(permissions);
     role.permissions = permissions;
     await role.save();
     return true;
