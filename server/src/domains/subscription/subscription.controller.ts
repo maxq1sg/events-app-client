@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import Route from "../../middleware/RouteDecorator";
 import { SubscriptionDto } from "./dtos/subscription.dto";
 import SubService from "./subscription.service";
 
@@ -7,7 +8,9 @@ class SubscriptionController {
   constructor() {
     this.subService = new SubService();
   }
-  createSubscription = async (req: Request, res: Response) => {
+  
+  @Route()
+  async createSubscription (req: Request, res: Response) {
     const { userId, eventId }: SubscriptionDto = req.body;
     const data = await this.subService.createSubscription({
       eventId,
@@ -15,7 +18,9 @@ class SubscriptionController {
     });
     res.json(data);
   };
-  cancelSubscription = async (req: Request, res: Response) => {
+  
+  @Route()
+  async cancelSubscription (req: Request, res: Response) {
     const { userId, eventId }: SubscriptionDto = req.body;
     const data = await this.subService.cancelSubscription({
       eventId,

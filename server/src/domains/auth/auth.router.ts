@@ -9,12 +9,8 @@ const router = Router();
 router.post(
   "/register",
   checkSchema(registrationSchema),
-  RouteDecorator(authController.registerUser)
+  authController.registerUser
 );
-router.post(
-  "/login",
-  checkSchema(loginSchema),
-  RouteDecorator(authController.loginUser)
-);
+router.post("/login", checkSchema(loginSchema), authController.loginUser);
 
 export default router;

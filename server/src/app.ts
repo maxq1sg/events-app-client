@@ -17,26 +17,26 @@ import eventRouter from "./domains/events/event.router";
 import errorHandler from "./errors/errorHandler";
 
 export default class App {
-  app: Application;
-  server: http.Server;
+  private _app: Application;
+  private _server: http.Server;
 
   constructor() {
     dotenv.config();
 
-    this.app = express();
-    this.app.use(express.json());
+    this._app = express();
+    this._app.use(express.json());
 
-    this.app.use(express.urlencoded({ extended: true }));
-    this.app.use("/api/events", eventRouter);
-    this.app.use("/api/users", usersRouter);
-    this.app.use("/api/sub", subRouter);
-    this.app.use("/api/auth", authRouter);
-    this.app.use("/api/roles", rolesRouter);
-    this.app.use("/api/perm", permissionsRouter);
-    this.app.get("/maxim", (req: Request, res: Response) => {
+    this._app.use(express.urlencoded({ extended: true }));
+    this._app.use("/api/events", eventRouter);
+    this._app.use("/api/users", usersRouter);
+    this._app.use("/api/sub", subRouter);
+    this._app.use("/api/auth", authRouter);
+    this._app.use("/api/roles", rolesRouter);
+    this._app.use("/api/perm", permissionsRouter);
+    this._app.get("/maxim", (req: Request, res: Response) => {
       res.json({ mes: "ya_eblan" });
     });
-    this.app.use(errorHandler);
+    this._app.use(errorHandler);
   }
   async setupDb() {
     const connection = await createConnection({
@@ -58,17 +58,17 @@ export default class App {
   }
   startServer() {
     const PORT = process.env.APP_PORT || 4000;
-    this.server = this.app.listen(PORT, () => {
+    this._server = this._app.listen(PORT, () => {
       console.log(chalk.green(`server is running on port ${PORT}`));
     });
-    return this.app;
+    return this._app;
   }
   async startApplication() {
     await this.setupDb();
-    this.startServer();
+    return this.startServer();
   }
 
-  stopServer() {
-    this.server?.close();
+  get app(){
+    return this._app
   }
 }

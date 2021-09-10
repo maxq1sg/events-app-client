@@ -11,13 +11,13 @@ router.post(
   "/add",
   AuthGuard,
   PermissionGuard(EPermission.EVENT_SUBSCRIPTION),
-  asyncHandler(subController.createSubscription)
+  subController.createSubscription
 );
 router.post(
   "/cancel",
   AuthGuard,
   PermissionGuard(EPermission.EVENT_SUBSCRIPTION),
-  asyncHandler(subController.cancelSubscription)
+  subController.cancelSubscription
 );
 
 export default router;

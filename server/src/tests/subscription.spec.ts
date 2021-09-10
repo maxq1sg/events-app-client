@@ -9,7 +9,7 @@ import authorizeAsRole from "./utils/authorizeAsRole";
 import { ERole } from "../domains/roles/dto";
 import User from "../domains/users/user.model";
 
-describe("test auth route", function () {
+describe("test subscription route", function () {
   const request = supertest(server);
 
   let connection: Connection;
@@ -19,7 +19,7 @@ describe("test auth route", function () {
   beforeAll(async () => {
     connection = await setupTestDB();
     user_ids = await UserService.seedUsers();
-    event_ids = await EventService.seedEvents(user_ids[0], user_ids[1]);
+    event_ids = await EventService.seedEvents(user_ids);
   });
 
   test('authorized users with "SUBSCRIPTION" permission can make subscription', async () => {
@@ -58,6 +58,6 @@ describe("test auth route", function () {
   afterAll(async () => {
     await EventService.clearEvents();
     await UserService.clearUsers();
-    await getConnection().close();
+    await connection.close();
   });
 });

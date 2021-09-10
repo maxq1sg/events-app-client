@@ -14,6 +14,5 @@ export default function setupTestDB(): Promise<Connection> {
     password: process.env.DB_PASSWORD,
     database: process.env.TEST_DB_NAME,
     entities: [Event, User, Role, Permission],
-    synchronize: true,
   });
 }

@@ -1,14 +1,13 @@
-import  server  from './appInit';
+import server from "./appInit";
 import supertest from "supertest";
 import setupTestDB from "./utils/connectToTestDb";
-import { Connection, getConnection } from "typeorm";
+import { Connection } from "typeorm";
 import UserService from "../domains/users/user.service";
 import EventService from "../domains/events/event.service";
 import authorizeAsRole from "./utils/authorizeAsRole";
 import { ERole } from "../domains/roles/dto";
 
-
-describe("test auth route", function () {
+describe("test event route", function () {
   const request = supertest(server);
 
   let connection: Connection;
@@ -18,7 +17,7 @@ describe("test auth route", function () {
   beforeAll(async () => {
     connection = await setupTestDB();
     user_ids = await UserService.seedUsers();
-    event_ids = await EventService.seedEvents(user_ids[0], user_ids[1]);
+    event_ids = await EventService.seedEvents(user_ids);
   });
 
   test("unathorized user can't create events", async () => {
@@ -53,9 +52,41 @@ describe("test auth route", function () {
     expect(response.statusCode).toBe(403);
   });
 
+  test("every user can search for events", async () => {
+    const response = await request.post("/api/events/search").send({
+      query: "fourth",
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.length).toBe(2);
+  });
+
+  test("authorized users can modify only own events", async () => {
+    const { token } = await authorizeAsRole(request, ERole.EDITOR);
+
+    const changeOwnEvent = await request
+      .put("/api/events")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        id: event_ids[1],
+        body: { name: "changedName" },
+      });
+
+    expect(changeOwnEvent.statusCode).toBe(200);
+
+    const changeOtherEvent = await request
+      .put("/api/events")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        id: event_ids[0],
+        body: { name: "changedName" },
+      });
+
+    expect(changeOtherEvent.statusCode).toBe(403);
+  });
+
   afterAll(async () => {
     await EventService.clearEvents();
     await UserService.clearUsers();
-    await getConnection().close();
+    await connection.close();
   });
 });

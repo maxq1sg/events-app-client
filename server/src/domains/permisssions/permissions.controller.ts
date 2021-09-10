@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import Route from "../../middleware/RouteDecorator";
 import PermissionService from "./permissions.service";
 
 class PermissionController {
@@ -6,19 +7,23 @@ class PermissionController {
   constructor() {
     this.permService = new PermissionService();
   }
+  
+  @Route()
+  async addNewPermission(req: Request, res: Response) {
+    const { name } = req.body;
+    const newPermission = await this.permService.addPermission(name);
+    return newPermission;
+  }
 
-  addNewPermission = async (req: Request, res: Response) => {
-      const { name } = req.body;
-      const newPermission = await this.permService.addPermission(name);
-      res.status(200).json(newPermission);
-  };
-  changePermissionName= async (req: Request, res: Response) => {
+  changePermissionName = async (req: Request, res: Response) => {
     // const {}
     // const modifiedPermission = await this.permService.changePermissionName()
-  }
-  seedPermissions= async (req: Request, res: Response) => {
-    const {identifiers}=await PermissionService.seedPermissions()
-    res.json(identifiers)
+  };
+
+  @Route()
+  async seedPermissions(req: Request, res: Response) {
+    const { identifiers } = await PermissionService.seedPermissions();
+    return identifiers;
   }
 }
 export default new PermissionController();

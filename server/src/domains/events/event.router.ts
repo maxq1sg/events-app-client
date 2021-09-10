@@ -6,10 +6,20 @@ import PermissionGuard from "../../middleware/PermissionGuard";
 import { EPermission } from "../permisssions/types";
 const router = Router();
 
-router.post("/",AuthGuard, PermissionGuard(EPermission.CREATE_EVENT), asyncHandler(eventController.createEvent));
-router.post("/search", asyncHandler(eventController.searchEvents));
-router.put("/", asyncHandler(eventController.modifyEvent));
-router.get("/:id", asyncHandler(eventController.getSinglEvent));
-router.get("/:id/subs", asyncHandler(eventController.getEventSubs));
+router.post(
+  "/",
+  AuthGuard,
+  PermissionGuard(EPermission.CREATE_EVENT),
+  eventController.createEvent
+);
+router.post("/search", eventController.searchEvents);
+router.put(
+  "/",
+  AuthGuard,
+  PermissionGuard(EPermission.MODIFY_EVENT_DETAILS),
+  eventController.modifyEvent
+);
+router.get("/:id", eventController.getSinglEvent);
+router.get("/:id/subs", eventController.getEventSubs);
 
 export default router;

@@ -24,7 +24,11 @@ export default function PermissionGuard(requiredPermission: EPermission) {
       user.role?.id
     );
 
-    if (permissions.map((item) => item.name).includes(requiredPermission)) {
+    if (
+      permissions.some(
+        (singlePermission) => singlePermission.name === requiredPermission
+      )
+    ) {
       next();
     } else {
       throw new CustomError(HttpStatusCode.FORBIDDEN, "Отказано в доступе!");

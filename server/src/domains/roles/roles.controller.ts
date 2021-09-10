@@ -1,4 +1,4 @@
-import { FindRoleByNameDto } from './dto/index';
+import { FindRoleByNameDto } from "./dto/index";
 import RoleService from "./roles.service";
 import { Request, Response } from "express";
 import {
@@ -6,6 +6,7 @@ import {
   ChangeAllRolesDto,
   NewRoleWithPermissions,
 } from "./dto";
+import Route from "../../middleware/RouteDecorator";
 
 class UserController {
   private roleService: RoleService;
@@ -13,59 +14,68 @@ class UserController {
     this.roleService = new RoleService();
   }
 
-  addNewRole = async (req: Request, res: Response) => {
+  @Route()
+  async addNewRole(req: Request, res: Response) {
     const { name } = req.body;
     const newRole = await this.roleService.addNewRole(name);
-    res.status(200).json(newRole);
-  };
-  addPermissionsToRole = async (req: Request, res: Response) => {
+    return newRole;
+  }
+  @Route()
+  async addPermissionsToRole(req: Request, res: Response) {
     const { role_id, permission_ids }: AddPermissionsToRoleDto = req.body;
-    console.log("here");
+
     const success = await this.roleService.addPermissionsToRole({
       role_id,
       permission_ids,
     });
-    res.status(200).json({ success });
-  };
+    return { success };
+  }
 
-  createNewRoleWithPermissions = async (req: Request, res: Response) => {
+  @Route()
+  async createNewRoleWithPermissions(req: Request, res: Response) {
     const { permission_ids, name }: NewRoleWithPermissions = req.body;
     const newRole = await this.roleService.createNewRoleWithPermissions(
       name,
       permission_ids
     );
-    res.status(200).json(newRole);
-  };
+    return newRole;
+  }
 
-  changeAllRoles = async (req: Request, res: Response) => {
+  @Route()
+  async changeAllRoles(req: Request, res: Response) {
     const { data }: ChangeAllRolesDto = req.body;
     const success = await this.roleService.changeAllRoles(data);
-    res.status(200).json({ success });
-  };
-  getPermissionsListToRole = async (req: Request, res: Response) => {
+    return { success };
+  }
+  @Route()
+  async getPermissionsListToRole(req: Request, res: Response) {
     const { id } = req.params;
     const permission = await this.roleService.getPermissionsListToRole(+id);
-    res.status(200).json(permission);
-  };
+    return permission;
+  }
 
-  getAllRolesWithPermissions = async (req: Request, res: Response) => {
+  @Route()
+  async getAllRolesWithPermissions(req: Request, res: Response) {
     const roles = await this.roleService.getAllRolesWithPermissions();
-    res.status(200).json(roles);
-  };
+    return roles;
+  }
 
-  seedRoles = async (req: Request, res: Response) => {
+  @Route()
+  async seedRoles(req: Request, res: Response) {
     const { identifiers } = await RoleService.seedRoles();
-    res.json(identifiers.map((idItem) => idItem.id));
-  };
+    return identifiers.map((idItem) => idItem.id);
+  }
 
-  clearAllRoles = async (req: Request, res: Response) => {
+  @Route()
+  async clearAllRoles(req: Request, res: Response) {
     await RoleService.clearAllRoles();
-    res.json({ message: "succcess" });
-  };
-  getRoleByName = async (req: Request, res: Response) => {
-    const {name}:FindRoleByNameDto = req.body
+    return { message: "succcess" };
+  }
+  @Route()
+  async getRoleByName(req: Request, res: Response) {
+    const { name }: FindRoleByNameDto = req.body;
 
-    const role = await this.roleService.getRoleByName(name)
-  };
+    const role = await this.roleService.getRoleByName(name);
+  }
 }
 export default new UserController();

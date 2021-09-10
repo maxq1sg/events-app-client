@@ -21,10 +21,17 @@ class EventService {
     return newEvent;
   }
 
-  async modifyEvent(id: number, body: IEvent) {
-    const newEvent = await Event.findOne(id);
+  async modifyEvent(id: number, body: IEvent, userFromToken: number) {
+    const newEvent = await Event.findOne(id, { relations: ["owner"] });
     if (!newEvent) {
       throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
+    }
+    const owner_id = newEvent.owner?.id;
+    if (owner_id !== userFromToken) {
+      throw new CustomError(
+        HttpStatusCode.FORBIDDEN,
+        "Нет прав на изменение этого события!"
+      );
     }
     newEvent.description = body.description || newEvent.description;
     newEvent.name = body.name || newEvent.name;
@@ -54,7 +61,7 @@ class EventService {
     return getConnection().createQueryBuilder().delete().from(Event).execute();
   }
 
-  static async seedEvents(...creatorIds: number[]) {
+  static async seedEvents(creatorIds: number[]) {
     const firstOwner = await User.findOne(creatorIds[0]);
     const secondOwner = await User.findOne(creatorIds[1]);
     const { identifiers } = await getConnection()
@@ -70,6 +77,11 @@ class EventService {
         },
         { name: "third", description: "third event ever", owner: secondOwner },
         { name: "fourth", description: "fourth event ever", owner: firstOwner },
+        {
+          name: "FourthWithUppercase",
+          description: "fourth event ever",
+          owner: firstOwner,
+        },
       ])
       .returning("id")
       .execute();
