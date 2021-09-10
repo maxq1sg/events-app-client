@@ -17,6 +17,8 @@ class AuthService {
 
   async registerUser(body: RegisterUser) {
     const { first_name, last_name, add_data, password, email, role } = body;
+    console.log("validation passed");
+
     const candidate = await User.findOne({ where: { email } });
     if (candidate) {
       throw new CustomError(

@@ -6,8 +6,14 @@ export default function errorHandler(
   error: BaseError,
   req: Request,
   res: Response,
-  next:NextFunction
+  next: NextFunction
 ) {
   const statusCode = error.httpCode || HttpStatusCode.INTERNAL_SERVER;
-  res.status(statusCode).json({ message: error.message });
+  const { body } = error;
+  const response = {
+    message: error.message,
+    body: body || null,
+  };
+
+  res.status(statusCode).json(response);
 }

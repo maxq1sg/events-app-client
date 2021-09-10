@@ -1,16 +1,15 @@
-import App from "../app";
+import  server  from './appInit';
 import supertest from "supertest";
 import setupTestDB from "./utils/connectToTestDb";
-import { Connection } from "typeorm";
+import { Connection, getConnection } from "typeorm";
 import UserService from "../domains/users/user.service";
 import EventService from "../domains/events/event.service";
 import authorizeAsRole from "./utils/authorizeAsRole";
 import { ERole } from "../domains/roles/dto";
-import User from "../domains/users/user.model";
+
 
 describe("test auth route", function () {
-  const app = new App().startServer();
-  const request = supertest(app);
+  const request = supertest(server);
 
   let connection: Connection;
   let user_ids: number[];
@@ -57,7 +56,6 @@ describe("test auth route", function () {
   afterAll(async () => {
     await EventService.clearEvents();
     await UserService.clearUsers();
-    await connection.close();
-    await app.close();
+    await getConnection().close();
   });
 });

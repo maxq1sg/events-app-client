@@ -6,6 +6,8 @@ import { RegisterUser } from "./dtos/aut.dto";
 import User from "../../domains/users/user.model";
 import CustomError from "./../../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
+import { LoginUser } from "./dtos/aut.dto";
+import { validationResult } from "express-validator";
 
 class AuthController {
   private authService: AuthService;
@@ -13,7 +15,7 @@ class AuthController {
     this.authService = new AuthService();
   }
   loginUser = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { email, password }: LoginUser = req.body;
     const userInDb = await this.authService.loginUser({ email, password });
     const token = this.authService.generateToken({
       email: userInDb.email,
@@ -21,7 +23,7 @@ class AuthController {
       role: userInDb.role,
     });
     userInDb.password = null;
-    res.json({ user: userInDb, token });
+    return { user: userInDb, token };
   };
   registerUser = async (req: Request, res: Response) => {
     const {
@@ -46,7 +48,7 @@ class AuthController {
       role: newUser?.role,
     });
     newUser.password = null;
-    res.json({ user: newUser, token });
+    return { user: newUser, token };
   };
 }
 export default new AuthController();

@@ -1,3 +1,8 @@
 import App from "./app";
+import setupDB from "./setupDb";
 
-new App().startApplication()
+
+
+const server = new App().startApplication()
+
+export default server

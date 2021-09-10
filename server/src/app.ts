@@ -61,7 +61,7 @@ export default class App {
     this.server = this.app.listen(PORT, () => {
       console.log(chalk.green(`server is running on port ${PORT}`));
     });
-    return this.server
+    return this.app;
   }
   async startApplication() {
     await this.setupDb();
