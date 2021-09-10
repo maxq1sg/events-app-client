@@ -8,6 +8,12 @@ export const registrationSchema: Schema = {
     notEmpty: true,
     errorMessage: "first_name is required!",
   },
+
+  last_name: {
+    notEmpty: true,
+    errorMessage: "first_name is required!",
+  },
+
   password: {
     isLength: {
       errorMessage: `Пароль должен быть от ${MIN_PASSWORD_LENGTH} до${MAX_PASSWORD_LENGTH}`,
@@ -34,7 +40,6 @@ export const loginSchema: Schema = {
     },
   },
   email: {
-    isEmail: true,
-    errorMessage: "email is invalid",
+    isEmail: { errorMessage: "email is invalid" },
   },
 };

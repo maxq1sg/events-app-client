@@ -23,7 +23,7 @@ describe("test subscription route", function () {
   });
 
   test('authorized users with "SUBSCRIPTION" permission can make subscription', async () => {
-    const { token, user } = await authorizeAsRole(request, ERole.USER);
+    const { token} = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/add")
       .set("Authorization", `Bearer ${token}`)
@@ -39,7 +39,7 @@ describe("test subscription route", function () {
   });
 
   test('authorized users with "SUBSCRIPTION" permission can cancel subscription', async () => {
-    const { token, user } = await authorizeAsRole(request, ERole.USER);
+    const { token} = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/cancel")
       .set("Authorization", `Bearer ${token}`)

@@ -14,13 +14,12 @@ class AuthController {
   @Route()
   async loginUser(req: Request, res: Response) {
     const { email, password }: LoginUser = req.body;
-    const userInDb = await this.authService.loginUser({ email, password });
+    const {password: _ , ...userInDb } = await this.authService.loginUser({ email, password });
     const token = this.authService.generateToken({
       email: userInDb.email,
       id: userInDb.id,
       role: userInDb.role,
     });
-    userInDb.password = null;
     return { user: userInDb, token };
   }
 
