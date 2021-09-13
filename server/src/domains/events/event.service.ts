@@ -8,31 +8,53 @@ import { InjectRepository } from "typeorm-typedi-extensions";
 import EventRepository from "./event.repository";
 import UserRepository from "../users/user.repository";
 import { Service } from "typedi";
+import CategoryRepository from "../category/category.repository";
+import Category from "../category/category.model";
+import FileService from "../file/file.service";
 
 @Service()
 class EventService {
   constructor(
     @InjectRepository(Event) private eventRepository: EventRepository,
-    @InjectRepository(User) private userRepository: UserRepository
+    @InjectRepository(User) private userRepository: UserRepository,
+    @InjectRepository(Category) private categoryRepository: CategoryRepository,
+    private readonly fileService: FileService
   ) {}
 
+  getAllEvents(page: number) {
+    const LIMIT = 5;
+    const SKIP = LIMIT * (page - 1);
+    return this.eventRepository.find({ take: LIMIT, skip: SKIP });
+  }
+  deleteEvent(id: number) {
+    return this.eventRepository.delete(id);
+  }
   async createEvent(createEventBody: ICreateEvent) {
-    const { owner_id, body } = createEventBody;
-    const ownerInDb = await this.userRepository.findOne(owner_id);
-    if (!ownerInDb) {
-      throw new CustomError(
-        HttpStatusCode.NOT_FOUND,
-        "Пользователь не найден!"
-      );
+    const { ownerId, body, categoryId, image } = createEventBody;
+    const owner = await this.userRepository.findOne(ownerId);
+    if (!owner) {
+      throw new CustomError(HttpStatusCode.NOT_FOUND, "No such user");
     }
-    const newEvent = this.eventRepository.create(body);
-    newEvent.owner = ownerInDb;
-    await newEvent.save();
-    return newEvent;
+
+    const category = await this.categoryRepository.findOne(categoryId);
+    if (!category) {
+      throw new CustomError(HttpStatusCode.NOT_FOUND, "No such category");
+    }
+
+    const preview = await this.fileService.addNewFileToStorage(image);
+    const newEvent = this.eventRepository.create({
+      ...body,
+      category,
+      owner,
+      preview,
+    });
+    return newEvent.save();
   }
 
   async modifyEvent(id: number, body: IEvent, userFromToken: number) {
-    const newEvent = await this.eventRepository.findOne(id, { relations: ["owner"] });
+    const newEvent = await this.eventRepository.findOne(id, {
+      relations: ["owner"],
+    });
     if (!newEvent) {
       throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
     }
@@ -65,7 +87,9 @@ class EventService {
     return this.eventRepository.findOne(id, { relations: ["users", "owner"] });
   }
   searchEvents(searchQuery: string) {
-    return this.eventRepository.find({ where: { name: ILike(`%${searchQuery}%`) } });
+    return this.eventRepository.find({
+      where: { name: ILike(`%${searchQuery}%`) },
+    });
   }
 
   static clearEvents() {

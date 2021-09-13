@@ -23,7 +23,7 @@ export default class Role extends BaseEntity {
   })
   name: ERole;
 
-  @ManyToMany(() => Permission, (per) => per.roles, { cascade: true })
+  @ManyToMany(() => Permission, (permission) => permission.roles, { cascade: true })
   @JoinTable({
     name: "roles_and_permissions",
   })

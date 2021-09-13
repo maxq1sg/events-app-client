@@ -4,8 +4,11 @@ export interface IEvent {
   date?: Date;
 }
 export interface ICreateEvent {
-  owner_id:number,
+  ownerId:number,
   body: IEvent;
+  categoryId:number,
+  image:Express.Multer.File
+
 }
 export interface IModifyEvent {
   body: IEvent;

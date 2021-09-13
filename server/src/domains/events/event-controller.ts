@@ -9,17 +9,32 @@ import EventService from "./event.service";
 @Service()
 class EventController {
   public router: Router;
-  constructor(private readonly eventService:EventService) {
+  constructor(private readonly eventService: EventService) {
     this.router = Router();
     initEventRouter.call(this, this.router);
   }
 
-  @Route(["body"])
+  @Route(["query"])
+  getAllEvents(payload: RequestPayload) {
+    const { page } = payload.query;
+    return this.eventService.getAllEvents(page || 1);
+  }
+
+  @Route(["params"])
+  async deleteEvent(payload: RequestPayload) {
+    const { id } = payload.params;
+    const data = await this.eventService.deleteEvent(+id);
+    return { message: `Deleted events: ${data.affected}` };
+  }
+
+  @Route(["body", "file"])
   async createEvent(payload: RequestPayload) {
-    const { owner_id, body }: ICreateEvent = payload.body;
+    const { ownerId, body, categoryId }: ICreateEvent = payload.body;
     const newEvent = await this.eventService.createEvent({
-      owner_id,
+      ownerId,
       body,
+      categoryId,
+      image: payload.file,
     });
     return newEvent;
   }

@@ -6,6 +6,8 @@ import Event from "./domains/events/event.model";
 import Permission from "./domains/permisssions/permissions.model";
 import Role from "./domains/roles/roles.model";
 import User from "./domains/users/user.model";
+import Category from "./domains/category/category.model";
+import File from "./domains/file/file.model";
 
 dotenv.config();
 
@@ -24,8 +26,8 @@ export default async function setupDB(mode: EMode) {
     password: process.env.DB_PASSWORD,
     database:
       mode == EMode.DEV ? process.env.DB_NAME : process.env.TEST_DB_NAME,
-    entities: [Event, User, Role, Permission],
-    synchronize: false,
+    entities: [Event, User, Role, Permission, Category, File],
+    synchronize: true,
   });
   console.log(
     chalk.green(
