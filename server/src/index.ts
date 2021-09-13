@@ -1,38 +1,48 @@
 import express, { Request, Response, Router } from "express";
 import dotenv from "dotenv";
 import App from "./app";
-import setupDB from "./setupDb";
+import setupDB, { EMode } from "./setupDb";
 import { Connection, getConnection } from "typeorm";
 import User from "./domains/users/user.model";
+import { singleton } from "tsyringe";
 
-dotenv.config();
+// class MySevice {
+//   private readonly _connection: Connection;
+//   constructor() {
+//     this._connection = getConnection();
+//   }
+//   getUsers() {
+//     return { ma: "d" };
+//   }
+// }
 
-class MyController {
-  private readonly _connection: Connection;
-  constructor() {
-    this._connection = getConnection();
-    this.getusers = this.getusers.bind(this);
-  }
-  async getusers(req: Request, res: Response) {
-    console.log(this._connection);
-    const data = await User.find();
-    res.json(data);
-  }
-}
+// @singleton()
+// class MyController {
+//   public readonly router: Router;
+//   private userService: MySevice;
+//   constructor() {
+//     this.getusers = this.getusers.bind(this);
+//     this.userService = new MySevice();
+//     this.router = Router();
+//     this.router.get("/", this.getusers);
+//   }
+//   async getusers(req: Request, res: Response) {
+//     const data = await this.userService.getUsers();
+//     res.json(data);
+//   }
+// }
 
-const router = Router();
+const server = setupDB(EMode.DEV).then((connection) => {
+  new App().startApplication();
+  // const app = express();
+  // const Myc = new MyController()
 
-router.get("/", new MyController().getusers);
+  // app.use("/", Myc.router);
+  // app.use(express.urlencoded({ extended: true }));
 
-const server = setupDB().then((connection) => {
-    new App().startApplication();
-//   const app = express();
-
-//   app.use("/", router);
-
-//   app.listen(4000, () => {
-//     console.log("server is running");
-//   });
+  // app.listen(4000, () => {
+  //   console.log("server is running");
+  // });
 });
 
 export default server;

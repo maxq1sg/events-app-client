@@ -1,4 +1,4 @@
-import { EPermission } from './../permisssions/types/index';
+import { EPermission } from "./../permisssions/types/index";
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import { NextFunction, Request, Response, Router } from "express";
 import UserService from "./user.service";
@@ -10,17 +10,23 @@ import { ChangeUsersRole, CreateUser } from "./dtos/user-dto";
 import { Connection, getConnection } from "typeorm";
 import Container, { Service } from "typedi";
 import AuthGuard from "../../middleware/AuthGuard";
-import PermissionGuard from '../../middleware/PermissionGuard';
+import PermissionGuard from "../../middleware/PermissionGuard";
+import { RequestPayload } from "../../middleware/types/MetaType";
 
 @Service()
 class UserController {
-  private connection: Connection;
   public router: Router;
   constructor(private readonly userService: UserService) {
+    this.router = Router();
+    this.setRoutes();
+  }
+
+  setRoutes = () => {
     this.router.post("/", this.createUser);
     this.router.post("/seed", this.seedUsers);
-    this.router.get("/:id", AuthGuard, this.getEventsOfSingleUser);
+    this.router.get("/:id/events", AuthGuard, this.getEventsOfSingleUser);
     this.router.delete("/:id", this.deleteUserById);
+    this.router.get("/:id", this.getSingleUser);
     this.router.get(
       "/",
       AuthGuard,
@@ -28,20 +34,27 @@ class UserController {
       this.getAllUsers
     );
     this.router.put("/role", this.changeUsersRole);
+  };
+
+  @Route(["params"])
+  async getSingleUser(payload: RequestPayload) {
+    const { id } = payload.params;
+    const user = await this.userService.getSingleUser(+id);
+    return user;
   }
 
-  @Route()
-  async deleteUserById(req: Request, res: Response) {
-    const { id } = req.params;
+  @Route(["params"])
+  async deleteUserById(payload: RequestPayload) {
+    const { id } = payload.params;
     const data = await this.userService.deleteUser(+id);
     return { message: `Удалено пользователей: ${data.affected}` };
   }
   //fix
-  @Route()
-  async getEventsOfSingleUser(req: CustomRequest, res: Response) {
-    const { id: idFromClient } = req.params;
-    const { id: idFromToken } = req.user;
-
+  @Route(["params", "user"])
+  async getEventsOfSingleUser(payload: RequestPayload) {
+    const { id: idFromClient } = payload.params;
+    const { id: idFromToken } = payload.user;
+    console.log(idFromClient, idFromToken);
     if (+idFromClient !== idFromToken) {
       throw new CustomError(
         HttpStatusCode.FORBIDDEN,
@@ -52,14 +65,14 @@ class UserController {
     return events;
   }
 
-  @Route()
-  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+  @Route([])
+  async getAllUsers(payload: RequestPayload) {
     const data = await this.userService.findAllUsers();
     return data;
   }
 
-  @Route()
-  async createUser(req: Request, res: Response) {
+  @Route(["body"])
+  async createUser(payload: RequestPayload) {
     const {
       first_name,
       last_name,
@@ -67,7 +80,7 @@ class UserController {
       password,
       email,
       role,
-    }: CreateUser = req.body;
+    }: CreateUser = payload.body;
     const newUser = await this.userService.createUser({
       first_name,
       last_name,
@@ -79,15 +92,15 @@ class UserController {
     return newUser;
   }
 
-  @Route()
-  async seedUsers(req: Request, res: Response) {
+  @Route([])
+  async seedUsers() {
     const identifiers = await UserService.seedUsers();
     return identifiers;
   }
 
-  @Route()
-  async changeUsersRole(req: Request, res: Response) {
-    const { role_id, user_id }: ChangeUsersRole = req.body;
+  @Route(["body"])
+  async changeUsersRole(payload: RequestPayload) {
+    const { role_id, user_id }: ChangeUsersRole = payload.body;
     const modifiedUser = await this.userService.changeUsersRole({
       role_id,
       user_id,
@@ -95,4 +108,4 @@ class UserController {
     return modifiedUser;
   }
 }
-export default Container.get(UserController);
+export default UserController;

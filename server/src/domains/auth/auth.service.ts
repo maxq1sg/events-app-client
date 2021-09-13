@@ -7,13 +7,11 @@ import { HttpStatusCode } from "../../errors/HttpStatusCodes";
 import UserService from "./../../domains/users/user.service";
 import Role from "./../../domains/roles/roles.model";
 import UserRepository from "../users/user.repository";
+import { Service } from "typedi";
 
+@Service()
 class AuthService {
-  private userService: UserService;
-
-  constructor() {
-    this.userService = new UserService();
-  }
+  constructor(private readonly userService: UserService) {}
 
   async registerUser(body: RegisterUser) {
     const { first_name, last_name, add_data, password, email, role } = body;

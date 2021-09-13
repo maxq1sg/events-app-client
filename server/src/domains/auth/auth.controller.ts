@@ -3,18 +3,30 @@ import AuthService from "./auth.service";
 import { RegisterUser } from "./dtos/aut.dto";
 import { LoginUser } from "./dtos/aut.dto";
 import Route from "../../middleware/RouteDecorator";
+import { Service } from "typedi";
+import { loginSchema, registrationSchema } from "./validation";
+import { checkSchema } from "express-validator";
 
-
+@Service()
 class AuthController {
-  private authService: AuthService;
-  constructor() {
-    this.authService = new AuthService();
+  public router:Router
+  constructor(private readonly authService: AuthService) {
+    this.router = Router()
+    this.router.post(
+      "/register",
+      checkSchema(registrationSchema),
+      this.registerUser
+    );
+    this.router.post("/login", checkSchema(loginSchema), this.loginUser);
   }
 
   @Route()
   async loginUser(req: Request, res: Response) {
     const { email, password }: LoginUser = req.body;
-    const {password: _ , ...userInDb } = await this.authService.loginUser({ email, password });
+    const { password: _, ...userInDb } = await this.authService.loginUser({
+      email,
+      password,
+    });
     const token = this.authService.generateToken({
       email: userInDb.email,
       id: userInDb.id,
@@ -24,7 +36,7 @@ class AuthController {
   }
 
   @Route()
-  async registerUser(req: Request, res: Response){
+  async registerUser(req: Request, res: Response) {
     const {
       first_name,
       last_name,
@@ -48,6 +60,6 @@ class AuthController {
     });
     newUser.password = null;
     return { user: newUser, token };
-  };
+  }
 }
-export default new AuthController();
+export default AuthController;

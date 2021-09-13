@@ -1,31 +1,37 @@
-import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
+import * as bcrypt from "bcrypt";
+import { Service } from "typedi";
 import {
-  Connection,
-  EntityManager,
-  getConnection,
-  getManager,
-  getRepository,
-  Repository,
+  getConnection
 } from "typeorm";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import CustomError from "../../errors/errorTypes/CustomError";
+import Role from "../roles/roles.model";
+import RoleRepository from "../roles/roles.repository";
+import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import { ChangeUsersRole, CreateUser } from "./dtos/user-dto";
 import User from "./user.model";
-import * as bcrypt from "bcrypt";
-import Role from "../roles/roles.model";
-import CustomError from "../../errors/errorTypes/CustomError";
 import UserRepository from "./user.repository";
-import { inject, injectable } from "tsyringe";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import Container, { Service } from "typedi";
 
 @Service()
 class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>
+    @InjectRepository(User) private userRepository: UserRepository,
+    @InjectRepository(Role) private roleRepository: RoleRepository
   ) {}
 
+  async getSingleUser(id: number) {
+    const user = await this.userRepository.findOne(id, {
+      relations: ["events", "role", "owner_of_events"],
+    });
+    if (!user) {
+      throw new CustomError(HttpStatusCode.BAD_REQUEST, "user doesn't exist");
+    }
+    return user
+  }
   async changeUsersRole({ role_id, user_id }: ChangeUsersRole) {
-    const role = await Role.findOne(role_id);
-    const user = await User.findOne(user_id);
+    const role = await this.roleRepository.findOne(role_id);
+    const user = await this.userRepository.findOne(user_id);
+
     if (!role || !user) {
       throw new CustomError(
         HttpStatusCode.BAD_REQUEST,
@@ -50,7 +56,9 @@ class UserService {
   }
 
   async getEventsOfSingleUser(id: number) {
-    const user = await User.findOne(id, { relations: ["events"] });
+    const user = await this.userRepository.findOne(id, {
+      relations: ["events"],
+    });
     if (!user) {
       throw new CustomError(HttpStatusCode.NOT_FOUND, "Пользователь не найден");
     }
@@ -58,7 +66,7 @@ class UserService {
   }
 
   findAllUsers() {
-    return User.find({
+    return this.userRepository.find({
       select: ["add_data", "first_name", "last_name", "email"],
     });
   }
@@ -69,7 +77,7 @@ class UserService {
       +process.env.SALT_ROUNDS
     );
     body.password = hashedPassword;
-    const newUser = User.create(body);
+    const newUser = this.userRepository.create(body);
     await newUser.save();
     return newUser;
   }

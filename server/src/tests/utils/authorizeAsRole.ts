@@ -6,7 +6,6 @@ export default async function authorizeAsRole(
   request: supertest.SuperTest<supertest.Test>,
   role: ERole
 ): Promise<AuthResponseBody> {
-
   const loginResponse = await request
     .post("/api/auth/login")
     .send({ email: `${role.toLowerCase()}@gmail.com`, password: "12345" });

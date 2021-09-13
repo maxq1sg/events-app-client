@@ -8,22 +8,27 @@ import EventService from "../domains/events/event.service";
 import authorizeAsRole from "./utils/authorizeAsRole";
 import { ERole } from "../domains/roles/dto";
 import User from "../domains/users/user.model";
+import { Application } from "express";
+import setupDB, { EMode } from "../setupDb";
+import App from "../app";
 
 describe("test subscription route", function () {
-  const request = supertest(server);
-
+  let request: supertest.SuperTest<supertest.Test>;
   let connection: Connection;
   let user_ids: number[];
   let event_ids: number[];
+  let server: Application;
 
   beforeAll(async () => {
-    connection = await setupTestDB();
+    connection = await setupDB(EMode.TEST);
+    server = new App().app;
+    request = supertest(server);
     user_ids = await UserService.seedUsers();
     event_ids = await EventService.seedEvents(user_ids);
   });
 
   test('authorized users with "SUBSCRIPTION" permission can make subscription', async () => {
-    const { token} = await authorizeAsRole(request, ERole.USER);
+    const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/add")
       .set("Authorization", `Bearer ${token}`)
@@ -39,7 +44,7 @@ describe("test subscription route", function () {
   });
 
   test('authorized users with "SUBSCRIPTION" permission can cancel subscription', async () => {
-    const { token} = await authorizeAsRole(request, ERole.USER);
+    const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/cancel")
       .set("Authorization", `Bearer ${token}`)

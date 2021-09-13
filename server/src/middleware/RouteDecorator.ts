@@ -3,13 +3,15 @@ import { validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import CustomError from "../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../errors/HttpStatusCodes";
+import CustomRequest from "../types/CustomRequest";
+import { metaType } from "./types/MetaType";
 
 const Route =
-  () =>
+  (metaTypes: metaType[]) =>
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalRouteHandler = descriptor.value;
     descriptor.value = async function (
-      req: Request,
+      req: CustomRequest,
       res: Response,
       next: NextFunction
     ) {
@@ -22,11 +24,13 @@ const Route =
             errors.array()
           );
         }
-        const fnReturn = await originalRouteHandler.apply(this, [
-          req,
-          res,
-          next,
-        ]);
+
+        const payload:any = {};
+        metaTypes.forEach((meta) => {
+          payload[meta] = req[meta];
+        });
+
+        const fnReturn = await originalRouteHandler.call(this, payload);
         res.status(200).json(fnReturn);
       } catch (err) {
         next(err);

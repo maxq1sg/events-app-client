@@ -4,16 +4,21 @@ import setupTestDB from "./utils/connectToTestDb";
 import { Connection, getConnection } from "typeorm";
 import UserService from "../domains/users/user.service";
 import EventService from "../domains/events/event.service";
+import { Application } from "express";
+import setupDB, { EMode } from "../setupDb";
+import App from "../app";
 
 describe("test auth route", function () {
-  const request = supertest(server);
-
+    let request: supertest.SuperTest<supertest.Test>;
   let connection: Connection;
   let user_ids: number[];
   let event_ids: number[];
+  let server: Application;
 
   beforeAll(async () => {
-    connection = await setupTestDB();
+    connection = await setupDB(EMode.TEST);
+    server = new App().app;
+    request = supertest(server);
     user_ids = await UserService.seedUsers();
     event_ids = await EventService.seedEvents(user_ids);
   });
