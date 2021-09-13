@@ -1,11 +1,11 @@
 import { HttpStatusCode } from "./../errors/HttpStatusCodes";
 import { EPermission } from "./../domains/permisssions/types/index";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import RoleService from "../domains/roles/roles.service";
-import ForbiddenError from "../errors/errorTypes/ForbiddenError";
 import asyncHandler from "express-async-handler";
 import CustomRequest from "../types/CustomRequest";
 import CustomError from "../errors/errorTypes/CustomError";
+import Container from "typedi";
 
 export default function PermissionGuard(requiredPermission: EPermission) {
   return asyncHandler(async function (
@@ -19,7 +19,7 @@ export default function PermissionGuard(requiredPermission: EPermission) {
       throw new CustomError(HttpStatusCode.FORBIDDEN, "Отказано в доступе!");
     }
 
-    const roleService = new RoleService();
+    const roleService = Container.get(RoleService);
     const permissions = await roleService.getPermissionsListToRole(
       user.role?.id
     );

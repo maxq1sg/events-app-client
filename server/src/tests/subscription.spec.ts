@@ -1,8 +1,5 @@
-import server from "./appInit";
-
 import supertest from "supertest";
-import setupTestDB from "./utils/connectToTestDb";
-import { Connection, getConnection } from "typeorm";
+import { Connection } from "typeorm";
 import UserService from "../domains/users/user.service";
 import EventService from "../domains/events/event.service";
 import authorizeAsRole from "./utils/authorizeAsRole";
@@ -27,7 +24,7 @@ describe("test subscription route", function () {
     event_ids = await EventService.seedEvents(user_ids);
   });
 
-  test('authorized users with "SUBSCRIPTION" permission can make subscription', async () => {
+  test("authorized users with \"SUBSCRIPTION\" permission can make subscription", async () => {
     const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/add")
@@ -43,7 +40,7 @@ describe("test subscription route", function () {
     expect(userFromDb.events.length).toBe(1);
   });
 
-  test('authorized users with "SUBSCRIPTION" permission can cancel subscription', async () => {
+  test("authorized users with \"SUBSCRIPTION\" permission can cancel subscription", async () => {
     const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/sub/cancel")

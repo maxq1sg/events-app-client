@@ -3,12 +3,24 @@ import { SubscriptionDto } from "./dtos/subscription.dto";
 import User from "../users/user.model";
 import Event from "../events/event.model";
 import CustomError from "./../../errors/errorTypes/CustomError";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import UserRepository from "../users/user.repository";
+import EventRepository from "../events/event.repository";
+import { Service } from "typedi";
 
-class SubService {
+@Service()
+class SubscriptionService {
+  constructor(
+    @InjectRepository(User) private userRepository: UserRepository,
+    @InjectRepository(Event) private eventRepository: EventRepository
+  ) {}
+
   async createSubscription(body: SubscriptionDto) {
     const { userId, eventId } = body;
-    const user = await User.findOne(userId, { relations: ["events"] });
-    const event = await Event.findOne(eventId);
+    const user = await this.userRepository.findOne(userId, {
+      relations: ["events"],
+    });
+    const event = await this.eventRepository.findOne(eventId);
 
     if (!user || !event) {
       throw new CustomError(
@@ -22,8 +34,8 @@ class SubService {
   }
   async cancelSubscription(body: SubscriptionDto) {
     const { userId, eventId } = body;
-    const user = await User.findOne(userId, { relations: ["events"] });
-    const event = await Event.findOne(eventId);
+    const user = await this.userRepository.findOne(userId, { relations: ["events"] });
+    const event = await this.eventRepository.findOne(eventId);
 
     if (!user || !event) {
       throw new CustomError(
@@ -37,4 +49,4 @@ class SubService {
     return { success: true, event_name: event.name };
   }
 }
-export default SubService;
+export default SubscriptionService;

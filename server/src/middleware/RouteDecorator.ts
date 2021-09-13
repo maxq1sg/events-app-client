@@ -1,6 +1,5 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
-import { getConnection } from "typeorm";
 import CustomError from "../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../errors/HttpStatusCodes";
 import CustomRequest from "../types/CustomRequest";
@@ -25,7 +24,7 @@ const Route =
           );
         }
 
-        const payload:any = {};
+        const payload: any = {};
         metaTypes.forEach((meta) => {
           payload[meta] = req[meta];
         });

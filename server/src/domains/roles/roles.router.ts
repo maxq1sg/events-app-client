@@ -1,18 +1,14 @@
-import asyncHandler from "express-async-handler";
 import { Router } from "express";
-import rolesController from "./roles.controller";
 
-const router = Router();
+export default function initRoleRouter(router: Router) {
+  router.post("/new", this.addNewRole);
+  router.post("/new_with_perm", this.createNewRoleWithPermissions);
 
-router.post("/new", rolesController.addNewRole);
-router.post("/new_with_perm", rolesController.createNewRoleWithPermissions);
-
-//fix - to perm.route
-router.post("/add_perm", rolesController.addPermissionsToRole);
-router.get("/", rolesController.getAllRolesWithPermissions);
-router.post("/seed", rolesController.seedRoles);
-router.delete("/", rolesController.clearAllRoles);
-router.put("/", rolesController.changeAllRoles);
-router.get("/:id/list", rolesController.getPermissionsListToRole);
-
-export default router;
+  //fix - to perm.route
+  router.post("/add_perm", this.addPermissionsToRole);
+  router.get("/", this.getAllRolesWithPermissions);
+  router.post("/seed", this.seedRoles);
+  router.delete("/", this.clearAllRoles);
+  router.put("/", this.changeAllRoles);
+  router.get("/:id/list", this.getPermissionsListToRole);
+}

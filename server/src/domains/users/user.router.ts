@@ -1,21 +1,19 @@
 import { Router } from "express";
-import userController from "./user.controller";
-import AuthGuard from "./../../middleware/AuthGuard";
-import PermissionGuard from "./../../middleware/PermissionGuard";
-import { EPermission } from "./../../domains/permisssions/types";
+import AuthGuard from "../../middleware/AuthGuard";
+import PermissionGuard from "../../middleware/PermissionGuard";
+import { EPermission } from "../permisssions/types";
 
-const router = Router();
-
-router.post("/", userController.createUser);
-router.post("/seed", userController.seedUsers);
-router.get("/:id", AuthGuard, userController.getEventsOfSingleUser);
-router.delete("/:id", userController.deleteUserById);
-router.get(
-  "/",
-  AuthGuard,
-  PermissionGuard(EPermission.SHOW_USERS_LIST),
-  userController.getAllUsers
-);
-router.put("/role",userController.changeUsersRole)
-
-export default router;
+export default function initUserRoute(router: Router) {
+  router.post("/", this.createUser);
+  router.post("/seed", this.seedUsers);
+  router.get("/:id/events", AuthGuard, this.getEventsOfSingleUser);
+  router.delete("/:id", this.deleteUserById);
+  router.get("/:id", this.getSingleUser);
+  router.get(
+    "/",
+    AuthGuard,
+    PermissionGuard(EPermission.SHOW_USERS_LIST),
+    this.getAllUsers
+  );
+  router.put("/role", this.changeUsersRole);
+}

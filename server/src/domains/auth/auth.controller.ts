@@ -1,28 +1,23 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import AuthService from "./auth.service";
 import { RegisterUser } from "./dtos/aut.dto";
 import { LoginUser } from "./dtos/aut.dto";
 import Route from "../../middleware/RouteDecorator";
 import { Service } from "typedi";
-import { loginSchema, registrationSchema } from "./validation";
-import { checkSchema } from "express-validator";
+import { RequestPayload } from "../../middleware/types/MetaType";
+import initAuthRouter from "./auth.router";
 
 @Service()
 class AuthController {
-  public router:Router
+  public router: Router;
   constructor(private readonly authService: AuthService) {
-    this.router = Router()
-    this.router.post(
-      "/register",
-      checkSchema(registrationSchema),
-      this.registerUser
-    );
-    this.router.post("/login", checkSchema(loginSchema), this.loginUser);
+    this.router = Router();
+    initAuthRouter.call(this, this.router);
   }
 
-  @Route()
-  async loginUser(req: Request, res: Response) {
-    const { email, password }: LoginUser = req.body;
+  @Route(["body"])
+  async loginUser(payload: RequestPayload) {
+    const { email, password }: LoginUser = payload.body;
     const { password: _, ...userInDb } = await this.authService.loginUser({
       email,
       password,
@@ -35,8 +30,8 @@ class AuthController {
     return { user: userInDb, token };
   }
 
-  @Route()
-  async registerUser(req: Request, res: Response) {
+  @Route(["body"])
+  async registerUser(payload: RequestPayload) {
     const {
       first_name,
       last_name,
@@ -44,7 +39,7 @@ class AuthController {
       password,
       email,
       role,
-    }: RegisterUser = req.body;
+    }: RegisterUser = payload.body;
     const newUser = await this.authService.registerUser({
       first_name,
       last_name,

@@ -1,40 +1,20 @@
-import { EPermission } from "./../permisssions/types/index";
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import UserService from "./user.service";
-import CustomRequest from "../../types/CustomRequest";
 import CustomError from "../../errors/errorTypes/CustomError";
 import Route from "../../middleware/RouteDecorator";
-import { container, injectable } from "tsyringe";
 import { ChangeUsersRole, CreateUser } from "./dtos/user-dto";
-import { Connection, getConnection } from "typeorm";
-import Container, { Service } from "typedi";
-import AuthGuard from "../../middleware/AuthGuard";
-import PermissionGuard from "../../middleware/PermissionGuard";
+import { Service } from "typedi";
 import { RequestPayload } from "../../middleware/types/MetaType";
+import initUserRoute from "./user.router";
 
 @Service()
 class UserController {
   public router: Router;
   constructor(private readonly userService: UserService) {
     this.router = Router();
-    this.setRoutes();
+    initUserRoute.call(this, this.router);
   }
-
-  setRoutes = () => {
-    this.router.post("/", this.createUser);
-    this.router.post("/seed", this.seedUsers);
-    this.router.get("/:id/events", AuthGuard, this.getEventsOfSingleUser);
-    this.router.delete("/:id", this.deleteUserById);
-    this.router.get("/:id", this.getSingleUser);
-    this.router.get(
-      "/",
-      AuthGuard,
-      PermissionGuard(EPermission.SHOW_USERS_LIST),
-      this.getAllUsers
-    );
-    this.router.put("/role", this.changeUsersRole);
-  };
 
   @Route(["params"])
   async getSingleUser(payload: RequestPayload) {
@@ -54,7 +34,6 @@ class UserController {
   async getEventsOfSingleUser(payload: RequestPayload) {
     const { id: idFromClient } = payload.params;
     const { id: idFromToken } = payload.user;
-    console.log(idFromClient, idFromToken);
     if (+idFromClient !== idFromToken) {
       throw new CustomError(
         HttpStatusCode.FORBIDDEN,
@@ -66,7 +45,7 @@ class UserController {
   }
 
   @Route([])
-  async getAllUsers(payload: RequestPayload) {
+  async getAllUsers() {
     const data = await this.userService.findAllUsers();
     return data;
   }

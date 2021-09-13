@@ -6,7 +6,6 @@ import CustomError from "../../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../../errors/HttpStatusCodes";
 import UserService from "./../../domains/users/user.service";
 import Role from "./../../domains/roles/roles.model";
-import UserRepository from "../users/user.repository";
 import { Service } from "typedi";
 
 @Service()

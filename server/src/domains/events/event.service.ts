@@ -4,25 +4,35 @@ import { getConnection, ILike } from "typeorm";
 import { ICreateEvent, IEvent } from "./dtos/create.event";
 import Event from "./event.model";
 import CustomError from "../../errors/errorTypes/CustomError";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import EventRepository from "./event.repository";
+import UserRepository from "../users/user.repository";
+import { Service } from "typedi";
 
+@Service()
 class EventService {
+  constructor(
+    @InjectRepository(Event) private eventRepository: EventRepository,
+    @InjectRepository(User) private userRepository: UserRepository
+  ) {}
+
   async createEvent(createEventBody: ICreateEvent) {
     const { owner_id, body } = createEventBody;
-    const ownerInDb = await User.findOne(owner_id);
+    const ownerInDb = await this.userRepository.findOne(owner_id);
     if (!ownerInDb) {
       throw new CustomError(
         HttpStatusCode.NOT_FOUND,
         "Пользователь не найден!"
       );
     }
-    const newEvent = Event.create(body);
+    const newEvent = this.eventRepository.create(body);
     newEvent.owner = ownerInDb;
     await newEvent.save();
     return newEvent;
   }
 
   async modifyEvent(id: number, body: IEvent, userFromToken: number) {
-    const newEvent = await Event.findOne(id, { relations: ["owner"] });
+    const newEvent = await this.eventRepository.findOne(id, { relations: ["owner"] });
     if (!newEvent) {
       throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
     }
@@ -39,7 +49,7 @@ class EventService {
     return newEvent.save();
   }
   async getEventSubscribers(id: number) {
-    const event = await Event.findOne(id, {
+    const event = await this.eventRepository.findOne(id, {
       relations: ["users"],
       select: ["id"],
     });
@@ -52,10 +62,10 @@ class EventService {
     });
   }
   getSingleEvent(id: number) {
-    return Event.findOne(id, { relations: ["users", "owner"] });
+    return this.eventRepository.findOne(id, { relations: ["users", "owner"] });
   }
   searchEvents(searchQuery: string) {
-    return Event.find({ where: { name: ILike(`%${searchQuery}%`) } });
+    return this.eventRepository.find({ where: { name: ILike(`%${searchQuery}%`) } });
   }
 
   static clearEvents() {

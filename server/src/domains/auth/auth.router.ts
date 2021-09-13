@@ -1,16 +1,12 @@
-import { loginSchema, registrationSchema } from "./validation/index";
 import { Router } from "express";
-import { body, checkSchema } from "express-validator";
-import authController from "./auth.controller";
-import RouteDecorator from "../../middleware/RouteDecorator";
+import { checkSchema } from "express-validator";
+import { loginSchema, registrationSchema } from "./validation";
 
-const router = Router();
-
-router.post(
-  "/register",
-  checkSchema(registrationSchema),
-  authController.registerUser
-);
-router.post("/login", checkSchema(loginSchema), authController.loginUser);
-
-export default router;
+export default  function initAuthRouter(router:Router){
+  router.post(
+    "/register",
+    checkSchema(registrationSchema),
+    this.registerUser
+  );
+  router.post("/login", checkSchema(loginSchema), this.loginUser);
+}

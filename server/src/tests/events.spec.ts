@@ -1,6 +1,4 @@
-import server from "./appInit";
 import supertest from "supertest";
-import setupTestDB from "./utils/connectToTestDb";
 import { Connection } from "typeorm";
 import UserService from "../domains/users/user.service";
 import EventService from "../domains/events/event.service";
@@ -32,7 +30,7 @@ describe("test event route", function () {
     expect(response.statusCode).toBe(401);
   });
 
-  test('users with "CREATE_EVENT" permission can create events', async () => {
+  test("users with \"CREATE_EVENT\" permission can create events", async () => {
     const { token } = await authorizeAsRole(request, ERole.ADMIN);
     const response = await request
       .post("/api/events")
@@ -44,7 +42,7 @@ describe("test event route", function () {
     expect(response.statusCode).toBe(200);
   });
 
-  test('users with no "CREATE_EVENT" permission can\'t create events', async () => {
+  test("users with no \"CREATE_EVENT\" permission can\'t create events", async () => {
     const { token } = await authorizeAsRole(request, ERole.USER);
     const response = await request
       .post("/api/events")

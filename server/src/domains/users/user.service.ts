@@ -1,8 +1,6 @@
 import * as bcrypt from "bcrypt";
 import { Service } from "typedi";
-import {
-  getConnection
-} from "typeorm";
+import { getConnection } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import CustomError from "../../errors/errorTypes/CustomError";
 import Role from "../roles/roles.model";
@@ -26,7 +24,7 @@ class UserService {
     if (!user) {
       throw new CustomError(HttpStatusCode.BAD_REQUEST, "user doesn't exist");
     }
-    return user
+    return user;
   }
   async changeUsersRole({ role_id, user_id }: ChangeUsersRole) {
     const role = await this.roleRepository.findOne(role_id);
@@ -97,7 +95,7 @@ class UserService {
       .values([
         {
           first_name: "ADM",
-          email: `admin@gmail.com`,
+          email: "admin@gmail.com",
           password,
           last_name: "bernadsk",
           add_data: {
@@ -108,7 +106,7 @@ class UserService {
         },
         {
           first_name: "edit",
-          email: `editor@gmail.com`,
+          email: "editor@gmail.com",
           password,
           last_name: "ber",
           add_data: {
@@ -119,7 +117,7 @@ class UserService {
         },
         {
           first_name: "user",
-          email: `user@gmail.com`,
+          email: "user@gmail.com",
           password,
           last_name: "ber",
           add_data: {

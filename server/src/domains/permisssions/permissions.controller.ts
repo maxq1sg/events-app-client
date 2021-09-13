@@ -1,29 +1,36 @@
-import { Request, Response } from "express";
+import { Router } from "express";
+import { Service } from "typedi";
 import Route from "../../middleware/RouteDecorator";
+import { RequestPayload } from "../../middleware/types/MetaType";
+import initPermissionsRouter from "./permissions.router";
 import PermissionService from "./permissions.service";
 
+@Service()
 class PermissionController {
-  private permService: PermissionService;
-  constructor() {
-    this.permService = new PermissionService();
+  public router: Router;
+
+  constructor(private readonly permService: PermissionService) {
+    this.router = Router();
+    initPermissionsRouter.call(this, this.router);
   }
-  
-  @Route()
-  async addNewPermission(req: Request, res: Response) {
-    const { name } = req.body;
+
+  @Route(["body"])
+  async addNewPermission(payload: RequestPayload) {
+    const { name } = payload.body;
     const newPermission = await this.permService.addPermission(name);
     return newPermission;
   }
 
-  changePermissionName = async (req: Request, res: Response) => {
-    // const {}
+  @Route(["body"])
+  async changePermissionName(payload: RequestPayload) {
+    const {} = payload.body
     // const modifiedPermission = await this.permService.changePermissionName()
-  };
+  }
 
-  @Route()
-  async seedPermissions(req: Request, res: Response) {
+  @Route([])
+  async seedPermissions() {
     const { identifiers } = await PermissionService.seedPermissions();
     return identifiers;
   }
 }
-export default new PermissionController();
+export default PermissionController;

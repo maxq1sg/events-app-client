@@ -1,18 +1,22 @@
-import { Request, Response } from "express";
+import { Router } from "express";
+import { Service } from "typedi";
 import Route from "../../middleware/RouteDecorator";
-import CustomRequest from "../../types/CustomRequest";
+import { RequestPayload } from "../../middleware/types/MetaType";
 import { ICreateEvent, IModifyEvent } from "./dtos/create.event";
+import initEventRouter from "./event.router";
 import EventService from "./event.service";
 
+@Service()
 class EventController {
-  private eventService: EventService;
-  constructor() {
-    this.eventService = new EventService();
+  public router: Router;
+  constructor(private readonly eventService:EventService) {
+    this.router = Router();
+    initEventRouter.call(this, this.router);
   }
 
-  @Route()
-  async createEvent(req: Request, res: Response) {
-    const { owner_id, body }: ICreateEvent = req.body;
+  @Route(["body"])
+  async createEvent(payload: RequestPayload) {
+    const { owner_id, body }: ICreateEvent = payload.body;
     const newEvent = await this.eventService.createEvent({
       owner_id,
       body,
@@ -20,33 +24,37 @@ class EventController {
     return newEvent;
   }
 
-  @Route()
-  async modifyEvent(req: CustomRequest, res: Response) {
-    const { id, body }: IModifyEvent = req.body;
-    const userFromToken = req?.user?.id
-    const modifiedEvent = await this.eventService.modifyEvent(id, body,userFromToken);
+  @Route(["body", "user"])
+  async modifyEvent(payload: RequestPayload) {
+    const { id, body }: IModifyEvent = payload.body;
+    const { id: userIdFromToken } = payload.user;
+    const modifiedEvent = await this.eventService.modifyEvent(
+      id,
+      body,
+      userIdFromToken
+    );
     return modifiedEvent;
   }
 
-  @Route()
-  async getEventSubs(req: Request, res: Response) {
-    const { id } = req.params;
+  @Route(["params"])
+  async getEventSubs(payload: RequestPayload) {
+    const { id } = payload.params;
     const eventSubs = await this.eventService.getEventSubscribers(+id);
     return eventSubs;
   }
 
-  @Route()
-  async getSinglEvent(req: Request, res: Response) {
-    const { id } = req.params;
+  @Route(["params"])
+  async getSinglEvent(payload: RequestPayload) {
+    const { id } = payload.params;
     const event = await this.eventService.getSingleEvent(+id);
     return event;
   }
 
-  @Route()
-  async searchEvents(req: Request, res: Response) {
-    const { query } = req.body;
+  @Route(["body"])
+  async searchEvents(payload: RequestPayload) {
+    const { query } = payload.body;
     const results = await this.eventService.searchEvents(query);
     return results;
   }
 }
-export default new EventController();
+export default EventController;

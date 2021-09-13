@@ -1,9 +1,8 @@
 import { TokenPayload } from "./../domains/auth/dtos/aut.dto";
 import { HttpStatusCode } from "./../errors/HttpStatusCodes";
-import UnathorizedError from "./../errors/errorTypes/UnauthorizedError";
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response } from "express";
 import asyncHandler from "express-async-handler";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import CustomError from "../errors/errorTypes/CustomError";
 import CustomRequest from "../types/CustomRequest";
 

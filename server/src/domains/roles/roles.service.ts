@@ -5,13 +5,20 @@ import { AddPermissionsToRoleDto, ERole } from "./dto";
 import PermissionService from "../permisssions/permissions.service";
 import CustomError from "../../errors/errorTypes/CustomError";
 import { getConnection } from "typeorm";
+import { Service } from "typedi";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import RoleRepository from "./roles.repository";
+import PermissionsRepository from "../permisssions/permissions.repository";
 
+@Service()
 class RoleService {
-  private permissionService: PermissionService;
-
-  constructor() {
-    this.permissionService = new PermissionService();
-  }
+  constructor(
+    private readonly permissionService: PermissionService,
+    @InjectRepository(Role)
+    private rolesRepository: RoleRepository,
+    @InjectRepository(Role)
+    private permissionsRepository: PermissionsRepository
+  ) {}
 
   static seedRoles() {
     return getConnection()
@@ -35,7 +42,7 @@ class RoleService {
   }
 
   addNewRole(name: ERole) {
-    const newRole = Role.create({ name });
+    const newRole = this.rolesRepository.create({ name });
     return newRole.save();
   }
 
@@ -50,14 +57,14 @@ class RoleService {
   }
 
   async addPermissionsToRole(body: AddPermissionsToRoleDto) {
-    const role = await Role.findOne(body.role_id);
-    const permissions = await Permission.findByIds(body.permission_ids);
+    const role = await this.rolesRepository.findOne(body.role_id);
+    const permissions = await this.permissionsRepository.findByIds(body.permission_ids);
     role.permissions = permissions;
     await role.save();
     return true;
   }
   async getPermissionsListToRole(id: number): Promise<Permission[]> {
-    const role = await Role.findOne(id, {
+    const role = await this.rolesRepository.findOne(id, {
       relations: ["permissions"],
     });
     if (!role) {
@@ -70,11 +77,11 @@ class RoleService {
   }
 
   getAllRolesWithPermissions() {
-    return Role.find({ relations: ["permissions"] });
+    return this.rolesRepository.find({ relations: ["permissions"] });
   }
 
   getRoleByName(name: ERole) {
-    return Role.find({ where: { name } });
+    return this.rolesRepository.find({ where: { name } });
   }
 }
 export default RoleService;
