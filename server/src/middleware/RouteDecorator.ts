@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import { getConnection } from "typeorm";
 import CustomError from "../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../errors/HttpStatusCodes";
 
@@ -7,7 +8,6 @@ const Route =
   () =>
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalRouteHandler = descriptor.value;
-
     descriptor.value = async function (
       req: Request,
       res: Response,

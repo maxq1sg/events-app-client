@@ -57,6 +57,7 @@ class EventService {
   searchEvents(searchQuery: string) {
     return Event.find({ where: { name: ILike(`%${searchQuery}%`) } });
   }
+
   static clearEvents() {
     return getConnection().createQueryBuilder().delete().from(Event).execute();
   }

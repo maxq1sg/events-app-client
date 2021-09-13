@@ -1,6 +1,6 @@
 import Role from "../../roles/roles.model";
 
-export interface RegisterUser {
+export interface CreateUser {
   first_name: string;
   email: string;
   password: string;
@@ -11,7 +11,8 @@ export interface RegisterUser {
   };
   role?: Role;
 }
-export interface LoginUser {
-  email: string;
-  password: string;
+
+export interface ChangeUsersRole {
+  user_id: number;
+  role_id: number;
 }

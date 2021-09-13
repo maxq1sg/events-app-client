@@ -1,14 +1,45 @@
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
-import { getConnection } from "typeorm";
-import { RegisterUser } from "./dtos/user-dto";
+import {
+  Connection,
+  EntityManager,
+  getConnection,
+  getManager,
+  getRepository,
+  Repository,
+} from "typeorm";
+import { ChangeUsersRole, CreateUser } from "./dtos/user-dto";
 import User from "./user.model";
 import * as bcrypt from "bcrypt";
 import Role from "../roles/roles.model";
 import CustomError from "../../errors/errorTypes/CustomError";
+import UserRepository from "./user.repository";
+import { inject, injectable } from "tsyringe";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import Container, { Service } from "typedi";
 
+@Service()
 class UserService {
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>
+  ) {}
+
+  async changeUsersRole({ role_id, user_id }: ChangeUsersRole) {
+    const role = await Role.findOne(role_id);
+    const user = await User.findOne(user_id);
+    if (!role || !user) {
+      throw new CustomError(
+        HttpStatusCode.BAD_REQUEST,
+        "Error while changing role for user"
+      );
+    }
+
+    user.role = role;
+    await user.save();
+
+    return user;
+  }
   async deleteUser(id: number) {
-    const data = await User.delete(id);
+    const data = await this.userRepository.delete(id);
     if (!data?.affected) {
       throw new CustomError(
         HttpStatusCode.NOT_FOUND,
@@ -32,7 +63,7 @@ class UserService {
     });
   }
 
-  async createUser(body: RegisterUser) {
+  async createUser(body: CreateUser) {
     const hashedPassword = await bcrypt.hash(
       body.password,
       +process.env.SALT_ROUNDS

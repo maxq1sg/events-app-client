@@ -15,27 +15,23 @@ import authRouter from "./domains/auth/auth.router";
 import subRouter from "./domains/subscription/subscription.router";
 import eventRouter from "./domains/events/event.router";
 import errorHandler from "./errors/errorHandler";
+import userController from "./domains/users/user.controller";
 
 export default class App {
   private _app: Application;
   private _server: http.Server;
 
   constructor() {
-    dotenv.config();
-
     this._app = express();
     this._app.use(express.json());
 
     this._app.use(express.urlencoded({ extended: true }));
     this._app.use("/api/events", eventRouter);
-    this._app.use("/api/users", usersRouter);
+    this._app.use("/api/users", userController.router);
     this._app.use("/api/sub", subRouter);
-    this._app.use("/api/auth", authRouter);
+    // this._app.use("/api/auth", authRouter);
     this._app.use("/api/roles", rolesRouter);
     this._app.use("/api/perm", permissionsRouter);
-    this._app.get("/maxim", (req: Request, res: Response) => {
-      res.json({ mes: "ya_eblan" });
-    });
     this._app.use(errorHandler);
   }
   async setupDb() {
@@ -64,11 +60,11 @@ export default class App {
     return this._app;
   }
   async startApplication() {
-    await this.setupDb();
+    // await this.setupDb();
     return this.startServer();
   }
 
-  get app(){
-    return this._app
+  get app() {
+    return this._app;
   }
 }

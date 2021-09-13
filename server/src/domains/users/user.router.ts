@@ -16,5 +16,6 @@ router.get(
   PermissionGuard(EPermission.SHOW_USERS_LIST),
   userController.getAllUsers
 );
+router.put("/role",userController.changeUsersRole)
 
 export default router;

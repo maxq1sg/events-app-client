@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
-import { LoginUser, TokenPayload } from "./dtos/aut.dto";
-import { RegisterUser } from "../users/dtos/user-dto";
+import { LoginUser, RegisterUser, TokenPayload } from "./dtos/aut.dto";
 import User from "../users/user.model";
 import * as bcrypt from "bcrypt";
 import CustomError from "../../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../../errors/HttpStatusCodes";
 import UserService from "./../../domains/users/user.service";
 import Role from "./../../domains/roles/roles.model";
+import UserRepository from "../users/user.repository";
 
 class AuthService {
   private userService: UserService;
