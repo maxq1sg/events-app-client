@@ -16,7 +16,7 @@ class RoleService {
     private readonly permissionService: PermissionService,
     @InjectRepository(Role)
     private rolesRepository: RoleRepository,
-    @InjectRepository(Role)
+    @InjectRepository(Permission)
     private permissionsRepository: PermissionsRepository
   ) {}
 

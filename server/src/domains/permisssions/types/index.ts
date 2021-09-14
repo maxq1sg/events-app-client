@@ -7,6 +7,7 @@ export enum EPermission {
   EVENT_SUBSCRIPTION = "EVENT_SUBSCRIPTION",
   CREATE_EVENT = "CREATE_EVENT",
   SHOW_USERS_LIST = "SHOW_USERS_LIST",
+  CHANGE_ROLES = "CHANGE_ROLES",
 }
 
 export interface IModifyPermission {

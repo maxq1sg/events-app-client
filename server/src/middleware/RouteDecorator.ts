@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import CustomError from "../errors/errorTypes/CustomError";
 import { HttpStatusCode } from "../errors/HttpStatusCodes";
 import CustomRequest from "../types/CustomRequest";
-import { metaType } from "./types/MetaType";
+import { metaType, RequestPayload } from "./types/MetaType";
 
 const Route =
   (metaTypes: metaType[]) =>
@@ -24,10 +24,13 @@ const Route =
           );
         }
 
-        const payload: any = {};
-        metaTypes.forEach((meta) => {
-          payload[meta] = req[meta];
-        });
+        const payload: RequestPayload = metaTypes.reduce(
+          (prev: RequestPayload, meta:metaType) => {
+            prev[meta] = req[meta];
+            return prev;
+          },
+          {}
+        );
 
         const fnReturn = await originalRouteHandler.call(this, payload);
         res.status(200).json(fnReturn);

@@ -39,6 +39,7 @@ describe("test event route", function () {
         owner_id: user_ids[2],
         body: { name: "mainEvent", description: "very interesting" },
       });
+      console.log(response.body)
     expect(response.statusCode).toBe(200);
   });
 

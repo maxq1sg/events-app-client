@@ -6,4 +6,4 @@ export type metaType =
   | "user"
   | "file";
 
-export type RequestPayload = Record<metaType, any>;
+export type RequestPayload = Partial<Record<metaType, any>>;

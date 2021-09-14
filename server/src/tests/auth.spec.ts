@@ -9,7 +9,7 @@ import App from "../app";
 describe("test auth route", function () {
   let request: supertest.SuperTest<supertest.Test>;
   let connection: Connection;
-  // let user_ids: number[];
+  let user_ids: number[];
   // let event_ids: number[];
   let server: Application;
 
@@ -17,8 +17,8 @@ describe("test auth route", function () {
     connection = await setupDB(EMode.TEST);
     server = new App().app;
     request = supertest(server);
-    // user_ids = await UserService.seedUsers();
-    // event_ids = await EventService.seedEvents(user_ids);
+    user_ids = await UserService.seedUsers();
+    await EventService.seedEvents(user_ids);
   });
 
   test("user can login only with correct data", async () => {
@@ -26,12 +26,16 @@ describe("test auth route", function () {
       .post("/api/auth/login")
       .send({ email: "admin@gmail.com", password: "12345" });
     expect(responseWithCorrectData.statusCode).toBe(200);
+  });
+
+  test("user can't login with incorrect data", async () => {
 
     const responseWithIncorrectData = await request
       .post("/api/auth/login")
       .send({ email: "admin@gmail.com", password: "123456" });
     expect(responseWithIncorrectData.statusCode).toBe(401);
   });
+
 
   test("user can register with correct data", async () => {
     const response = await request.post("/api/auth/register").send({

@@ -13,6 +13,7 @@ import RoleController from "./domains/roles/roles.controller";
 import CategoryController from "./domains/category/category.controller";
 import { join } from "path";
 import FileController from "./domains/file/file.controller";
+import cors from "cors";
 
 export default class App {
   private _app: Application;
@@ -38,6 +39,8 @@ export default class App {
 
     this._app = express();
     this._app.use(express.json());
+    this._app.use(cors({ origin: process.env.CLIENT }));
+
     this._app.use("/static", express.static(join(__dirname, "..", "static")));
     this._app.use(express.urlencoded({ extended: true }));
     this._app.use("/api/events", this._eventController.router);

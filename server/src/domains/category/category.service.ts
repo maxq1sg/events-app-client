@@ -4,11 +4,13 @@ import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import Category from "./category.model";
 import CategoryRepository from "./category.repository";
+import EventRepository from "../events/event.repository";
 
 @Service()
 class CategoryService {
   constructor(
-    @InjectRepository(Category) private categoryRepository: CategoryRepository
+    @InjectRepository(Category) private categoryRepository: CategoryRepository,
+    @InjectRepository(Event) private eventRepository: EventRepository
   ) {}
 
   addNewCategory(name: string) {
@@ -17,10 +19,6 @@ class CategoryService {
   }
   getAllCategories() {
     return this.categoryRepository.find();
-  }
-
-  getEventsPerCategory(id: number) {
-    return this.categoryRepository.findOne(id, { relations: ["events"] });
   }
 
   static seedCategories() {

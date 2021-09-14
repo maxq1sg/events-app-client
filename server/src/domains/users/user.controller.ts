@@ -7,11 +7,16 @@ import { ChangeUsersRole, CreateUser } from "./dtos/user-dto";
 import { Service } from "typedi";
 import { RequestPayload } from "../../middleware/types/MetaType";
 import initUserRoute from "./user.router";
+import BaseController from "../../middleware/types/BaseController";
+import AuthGuard from "../../middleware/AuthGuard";
+import PermissionGuard from "../../middleware/PermissionGuard";
+import { EPermission } from "../permisssions/types";
 
 @Service()
-class UserController {
+class UserController extends BaseController{
   public router: Router;
   constructor(private readonly userService: UserService) {
+    super()
     this.router = Router();
     initUserRoute.call(this, this.router);
   }
@@ -85,6 +90,20 @@ class UserController {
       user_id,
     });
     return modifiedUser;
+  }
+  initRoutes=()=>{
+    this.router.post("/", this.createUser);
+    this.router.post("/seed", this.seedUsers);
+    this.router.get("/:id/events", AuthGuard, this.getEventsOfSingleUser);
+    this.router.delete("/:id", this.deleteUserById);
+    this.router.get("/:id", this.getSingleUser);
+    this.router.get(
+      "/",
+      AuthGuard,
+      PermissionGuard(EPermission.SHOW_USERS_LIST),
+      this.getAllUsers
+    );
+    this.router.put("/role", this.changeUsersRole);
   }
 }
 export default UserController;

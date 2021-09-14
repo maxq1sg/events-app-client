@@ -1,17 +1,21 @@
+import { EPermission } from "./types/index";
 import { Router } from "express";
 import { Service } from "typedi";
+import AuthGuard from "../../middleware/AuthGuard";
+import PermissionGuard from "../../middleware/PermissionGuard";
 import Route from "../../middleware/RouteDecorator";
+import BaseController from "../../middleware/types/BaseController";
 import { RequestPayload } from "../../middleware/types/MetaType";
-import initPermissionsRouter from "./permissions.router";
 import PermissionService from "./permissions.service";
 
 @Service()
-class PermissionController {
+class PermissionController extends BaseController {
   public router: Router;
 
   constructor(private readonly permService: PermissionService) {
+    super();
     this.router = Router();
-    initPermissionsRouter.call(this, this.router);
+    this.initRoutes();
   }
 
   @Route(["body"])
@@ -21,9 +25,10 @@ class PermissionController {
     return newPermission;
   }
 
+  //todo
   @Route(["body"])
   async changePermissionName(payload: RequestPayload) {
-    const {} = payload.body
+    const {} = payload.body;
     // const modifiedPermission = await this.permService.changePermissionName()
   }
 
@@ -32,5 +37,15 @@ class PermissionController {
     const { identifiers } = await PermissionService.seedPermissions();
     return identifiers;
   }
+
+  initRoutes = () => {
+    this.router.post("/seed", this.seedPermissions);
+    this.router.post(
+      "/",
+      AuthGuard,
+      PermissionGuard(EPermission.CHANGE_ROLES),
+      this.addNewPermission
+    );
+  };
 }
 export default PermissionController;

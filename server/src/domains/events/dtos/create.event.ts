@@ -4,13 +4,16 @@ export interface IEvent {
   date?: Date;
 }
 export interface ICreateEvent {
-  ownerId:number,
+  ownerId: number;
   body: IEvent;
-  categoryId:number,
-  image:Express.Multer.File
-
+  categoryId: number;
+  image: Express.Multer.File;
 }
 export interface IModifyEvent {
   body: IEvent;
   id: number;
+}
+export interface ISearchEvent {
+  categories: number[];
+  query: string;
 }

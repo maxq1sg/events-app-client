@@ -1,17 +1,18 @@
 import { Router } from "express";
 import { Service } from "typedi";
 import Route from "../../middleware/RouteDecorator";
+import BaseController from "../../middleware/types/BaseController";
 import { RequestPayload } from "../../middleware/types/MetaType";
-import initCategoryRouter from "./category.router";
 import CategoryService from "./category.service";
 
 @Service()
-class CategoryController {
+class CategoryController extends BaseController {
   public router: Router;
 
   constructor(private readonly categoryService: CategoryService) {
+    super();
     this.router = Router();
-    initCategoryRouter.call(this, this.router);
+    this.initRoutes();
   }
 
   @Route(["body"])
@@ -21,6 +22,8 @@ class CategoryController {
     return newCategory;
   }
 
+  
+
   @Route([])
   getAllCategories() {
     return this.categoryService.getAllCategories();
@@ -29,10 +32,11 @@ class CategoryController {
   async seedCategories() {
     return CategoryService.seedCategories();
   }
-  @Route(["params"])
-  async getEventsPerCategory(payload: RequestPayload) {
-    const { id } = payload.params;
-    return this.categoryService.getEventsPerCategory(+id);
-  }
+
+  initRoutes = () => {
+    this.router.get("/", this.getAllCategories);
+    this.router.post("/", this.addNewCategory);
+    this.router.post("/seed", this.seedCategories);
+  };
 }
 export default CategoryController;

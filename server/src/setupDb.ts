@@ -28,6 +28,7 @@ export default async function setupDB(mode: EMode) {
       mode == EMode.DEV ? process.env.DB_NAME : process.env.TEST_DB_NAME,
     entities: [Event, User, Role, Permission, Category, File],
     synchronize: true,
+    logging:false
   });
   console.log(
     chalk.green(

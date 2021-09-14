@@ -1,7 +1,7 @@
 import { HttpStatusCode } from "./../../errors/HttpStatusCodes";
 import User from "../../domains/users/user.model";
-import { getConnection, ILike } from "typeorm";
-import { ICreateEvent, IEvent } from "./dtos/create.event";
+import { getConnection} from "typeorm";
+import { ICreateEvent, IEvent, ISearchEvent } from "./dtos/create.event";
 import Event from "./event.model";
 import CustomError from "../../errors/errorTypes/CustomError";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -20,6 +20,32 @@ class EventService {
     @InjectRepository(Category) private categoryRepository: CategoryRepository,
     private readonly fileService: FileService
   ) {}
+
+  getEventsSubsCount(id: number) {
+    return this.eventRepository
+      .createQueryBuilder("event")
+      .leftJoin("event.users", "users")
+      .where("event.id = :id", { id })
+      .select("COUNT(users.id) as count")
+      .getRawOne();
+  }
+
+  async getEventsPerCategory(categoryId: number, page: number) {
+    const LIMIT = 3;
+    const SKIP = LIMIT * (page - 1);
+
+    const category = await this.categoryRepository
+      .createQueryBuilder("category")
+      .where("category.id = :id", { id: categoryId })
+      .getOne();
+    category.events = await this.eventRepository
+      .createQueryBuilder("event")
+      .where("event.categoryId=:id", { id: category.id })
+      .skip(SKIP)
+      .take(LIMIT)
+      .getMany();
+    return category;
+  }
 
   getAllEvents(page: number) {
     const LIMIT = 5;
@@ -70,26 +96,37 @@ class EventService {
     newEvent.date = body.date || newEvent.date;
     return newEvent.save();
   }
-  async getEventSubscribers(id: number) {
+  //todo
+  async getEventSubscribers(id: number, page: number, limit: number) {
+    const LIMIT = limit;
+    const SKIP = LIMIT * (page - 1);
+
     const event = await this.eventRepository.findOne(id, {
       relations: ["users"],
       select: ["id"],
     });
     if (!event) {
-      throw new CustomError(HttpStatusCode.NOT_FOUND, "Событие не найдено!");
+      throw new CustomError(HttpStatusCode.NOT_FOUND, "Event not found!");
     }
-    return event.users.map((evt) => {
-      evt.password = null;
-      return evt;
-    });
+    const q1 = await this.userRepository
+      .createQueryBuilder("user")
+      .where("event.categoryId=:id", { id})
+      .skip(SKIP)
+      .take(LIMIT)
+      .getMany();
+    return event;
   }
   getSingleEvent(id: number) {
     return this.eventRepository.findOne(id, { relations: ["users", "owner"] });
   }
-  searchEvents(searchQuery: string) {
-    return this.eventRepository.find({
-      where: { name: ILike(`%${searchQuery}%`) },
-    });
+  searchEvents(searchDto: ISearchEvent) {
+    const { categories, query } = searchDto;
+
+    return this.eventRepository
+      .createQueryBuilder("event")
+      .where("event.name ilike :query", { query: `%${query}%` })
+      .andWhere("event.categoryId IN (:...categories)", { categories })
+      .getMany();
   }
 
   static clearEvents() {
